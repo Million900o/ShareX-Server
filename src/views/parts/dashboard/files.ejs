@@ -1,0 +1,34 @@
+<% let randomString = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(36) %>
+<div class="popup filesForm">
+  <div class="popupBG">
+    <div class="dashboardSpace"></div>
+    <h1>Delete Files</h1>
+    <div class="form">
+      <form action="/api/user/manage/delete/files" method="post">
+        <div class="formOption">
+          <span id='label'>Password</span>
+          <input type="password" name="password" required />
+        </div>
+        <div class="formOption">
+          <span id='label'>Type "<%- randomString %>"</span>
+          <input type="text" name="str" required />
+          <input style="display: none;" type="text" name="strCheck" value="<%- randomString %>" />
+        </div>
+        <div class="submit">
+          <input type="submit" class="formSubmit" value="Go!">
+        </div>
+      </form>
+      <% if (error) { %>
+        <a class="error"><%= error %></a>
+      <% } else if (success) { %>
+        <a class="success"><%= success %></a>
+      <% } else { %>
+        <a class="error">If you want to download your files before you delete them, download them</a>
+        <a href="/files/download" style="text-decoration: underline; color: red">here</a><a class="error">.</a>
+      <% } %>
+    </div>
+  </div>
+  <div class="dashboardOption">
+    <a class="dashboardBack" href="/dashboard">Take Me back!</a>
+  </div>
+</div>

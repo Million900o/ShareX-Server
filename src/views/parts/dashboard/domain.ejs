@@ -1,0 +1,31 @@
+<div class="popup domainForm">
+  <div class="popupBG">
+    <div class="dashboardSpace"></div>
+    <h1>Change Domain</h1>
+    <div class="form">
+      <form action="/api/user/manage/domain" method="post">
+        <div class="formOption">
+          <span id='label'>Password</span>
+          <input type="password" name="password" required />
+        </div>
+        <div class="formOption">
+          <span id='label'>New Domain</span>
+          <input type="text" name="domain" required />
+        </div>
+        <div class="submit">
+          <input type="submit" class="formSubmit" value="Go!">
+        </div>
+      </form>
+      <% if (error) { %>
+        <a class="error"><%= error %></a>
+      <% } else if (success) { %>
+        <a class="success"><%= success %></a>
+      <% } else { %>
+          <a class="error">This domain must be routed to this server or the custom domain will not work.</a>
+      <% } %> 
+    </div>
+  </div>
+  <div class="dashboardOption">
+    <a class="dashboardBack" href="/dashboard">Take Me back!</a>
+  </div>
+</div>

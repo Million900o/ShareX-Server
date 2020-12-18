@@ -1,0 +1,13 @@
+{
+    "
+    "mongo": {
+        "connectURI": "mongodb://sharex:sharexServer@localhost/sharex",
+        "connectOptions": {}
+    },
+    "secure": true,
+    "domain": "is-a.computer",
+    "subdomain": "data",
+    "passwordSaltRounds": 13,
+    "ipv4": true,
+    "ipv6": true
+}
