@@ -1,5 +1,5 @@
 /*
-    The router for creating a short url
+    The router for showing stats about memory and caching
 */
 const { Router, json, urlencoded } = require('express');
 const router = Router();
