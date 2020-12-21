@@ -182,7 +182,7 @@ class ShareXServer {
     this.app.disable('x-powered-by');
     this.app.set('trust proxy', true);
     this.app.use(express.static(`${__dirname}/public/`));
-    this.app.use(express.static(resolve(`${__dirname}/../files/`)));
+    this.app.use('/files/*', express.static(resolve(`${__dirname}/../files/`)));
     this.app.use(session({
       saveUninitialized: false,
       resave: false,
