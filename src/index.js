@@ -4,14 +4,17 @@ const express = require('express');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 
-const { Logger } = require('loggers');
-const redis = require('redis');
+// Redis stuff
 const { promisify } = require('util');
-const mongoose = require('mongoose');
+const redis = require('redis');
 process.f = {};
+
+// My packages
+const { Logger } = require('loggers');
 const nodeHandler = require('file-storage-node-handler');
 
 // MongoDB models
+const mongoose = require('mongoose');
 const DomainModel = require('./models/domain.js');
 const FileModel = require('./models/file.js');
 const UserModel = require('./models/user.js');
@@ -46,6 +49,7 @@ const usernameRoute = require('./routes/api/user/username.js');
 const loginAsRoute = require('./routes/api/admin/users/login.js');
 const deleteUserRoute = require('./routes/api/admin/users/delete.js');
 const deleteUserFilesRoute = require('./routes/api/admin/users/deleteFiles.js');
+const { generateRandomString } = require('./utils/random.js');
 
 const DefaultOptions = {
   authentication: {
@@ -133,6 +137,40 @@ class ShareXServer {
     this.logger.debug('Connecting to MongoDB');
     this.mongodb = mongoose.connect(this.mongoConfig.connectURI, this.mongoConfig.connectOptions);
     this.logger.log('Connected to MongoDB at:', this.mongoConfig.connectURI);
+    const checkDomain = await this.models.DomainModel.findOne({ domain: this.defaults.domain });
+    if(!checkDomain) await this.models.DomainModel.create({
+      info: {
+        created_date: new Date(),
+        users: [],
+      },
+      domain: this.defaults.domain,
+      subdomains: {},
+      owner: 'server',
+      secure: this.defaults.secure
+    });
+    const userCheck = await this.models.UserModel.findOne({ id: 'default' });
+    if(!userCheck) await this.models.UserModel.create({
+      id: 'default',
+      authentication: {
+        token: generateRandomString(this.authentication.tokens.length),
+        username: 'default',
+        password: 'default',
+        email: 'none',
+      },
+      stats: {
+        uploads: 0,
+        redirects: 0,
+        upload_size: 0,
+      },
+      info: {
+        created_date: new Date(),
+        user_type: 'owner',
+      },
+      domain: {
+        subdomain: '',
+        domain: this.defaults.domain,
+      },
+    });
   }
 
   startServer() {
