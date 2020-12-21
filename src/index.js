@@ -50,7 +50,8 @@ const loginAsRoute = require('./routes/api/admin/users/login.js');
 const deleteUserRoute = require('./routes/api/admin/users/delete.js');
 const deleteUserFilesRoute = require('./routes/api/admin/users/deleteFiles.js');
 const { generateRandomString } = require('./utils/random.js');
-const { hash, hashSync } = require('bcrypt');
+const bcrypt = require('bcrypt');
+const { resolve } = require('path');
 
 const DefaultOptions = {
   authentication: {
@@ -157,7 +158,7 @@ class ShareXServer {
       authentication: {
         token: generateRandomString(this.authentication.tokens.length),
         username: 'default',
-        password: hashSync('default', 1),
+        password: bcrypt.hashSync('default', 1),
         email: 'none',
       },
       stats: {
@@ -181,6 +182,7 @@ class ShareXServer {
     this.app.disable('x-powered-by');
     this.app.set('trust proxy', true);
     this.app.use(express.static(`${__dirname}/public/`));
+    this.app.use(express.static(resolve(`${__dirname}/../files/`)));
     this.app.use(session({
       saveUninitialized: false,
       resave: false,
