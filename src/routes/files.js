@@ -17,7 +17,6 @@ router.get('/files/all', passwordAuthentication, async (req, res) => {
 
 router.get('/files/:id', async (req, res) => {
   const fileID = req.params.id;
-  console.log(fileID)
   if (fileID) {
     const testPath = path.resolve('files/' + req.params.id);
     if(fs.existsSync(testPath)) return res.sendFile(testPath)
