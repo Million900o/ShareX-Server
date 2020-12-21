@@ -32,8 +32,8 @@ router.get('/files/:id', async (req, res) => {
         res.end(file, 'binary');
       }
       return;
-    } else res.render('pages/error.ejs', { message: 'File Not Found', error: 404, user: undefined });
-  } else res.render('pages/error.ejs', { message: 'File Not Found', error: 404, user: undefined });
+    } else res.render('pages/error.ejs', { message: 'File Not Found', error: 404, user: req.session.userData });
+  } else res.render('pages/error.ejs', { message: 'File Not Found', error: 404, user: req.session.userData });
   return;
 });
 

@@ -20,6 +20,8 @@ const UserModel = require('./models/user.js');
 const domainHandling = require('./middleware/domainHandling.js');
 
 // Routes
+const FORRoute = require('./routes/404.js');
+const adminRoute = require('./routes/admin.js');
 const dashboardRoute = require('./routes/dashboard.js');
 const deleteRoute = require('./routes/delete.js');
 const filesRoute = require('./routes/files.js');
@@ -40,6 +42,10 @@ const deleteFilesRoute = require('./routes/api/user/files.js');
 const passwordRoute = require('./routes/api/user/password.js');
 const subdomainRoute = require('./routes/api/user/subdomain.js');
 const usernameRoute = require('./routes/api/user/username.js');
+// API ADMIN
+const loginAsRoute = require('./routes/api/admin/users/login.js');
+const deleteUserRoute = require('./routes/api/admin/users/delete.js');
+const deleteUserFilesRoute = require('./routes/api/admin/users/deleteFiles.js');
 
 const DefaultOptions = {
   authentication: {
@@ -149,6 +155,7 @@ class ShareXServer {
     
     this.app.use(domainHandling);
 
+    this.app.use(adminRoute);
     this.app.use(dashboardRoute);
     this.app.use(deleteRoute);
     this.app.use(filesRoute);
@@ -169,6 +176,12 @@ class ShareXServer {
     this.app.use(passwordRoute);
     this.app.use(subdomainRoute);
     this.app.use(usernameRoute);
+
+    this.app.use(loginAsRoute);
+    this.app.use(deleteUserRoute);
+    this.app.use(deleteUserFilesRoute);
+
+    this.app.use(FORRoute);
 
     this.app.listen(this.defaults.port, () => {
       this.logger.log('Started ShareX-Server on port', this.defaults.port);
