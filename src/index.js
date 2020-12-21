@@ -50,6 +50,7 @@ const loginAsRoute = require('./routes/api/admin/users/login.js');
 const deleteUserRoute = require('./routes/api/admin/users/delete.js');
 const deleteUserFilesRoute = require('./routes/api/admin/users/deleteFiles.js');
 const { generateRandomString } = require('./utils/random.js');
+const { hash, hashSync } = require('bcrypt');
 
 const DefaultOptions = {
   authentication: {
@@ -156,7 +157,7 @@ class ShareXServer {
       authentication: {
         token: generateRandomString(this.authentication.tokens.length),
         username: 'default',
-        password: 'default',
+        password: hashSync('default', 1),
         email: 'none',
       },
       stats: {
