@@ -16,9 +16,13 @@
     "mongoose": "^5.11.8",
     "redis": "^3.0.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  },
   "scripts": {
-    "test": "nodemon ."
+    "test": "nodemon .",
+    "start": "node .",
+    "lint": "eslint . --fix"
   },
   "repository": {
     "type": "git",
