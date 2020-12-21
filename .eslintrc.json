@@ -1,0 +1,21 @@
+{
+	"root": true,
+	"extends": "eslint:recommended",
+	"env": {
+		"es6": true,
+		"node": true
+	},
+	"parserOptions": {
+		"ecmaVersion": 8
+	},
+	"rules": {
+		"semi": "error", // Semicolons
+		"quotes": ["warn", "single", { "avoidEscape": true }], // Single quotes
+		"no-useless-concat": "error",
+		"prefer-const": "warn", // Prefer const if variable doesn't change
+		"eol-last": ["error", "always"], // End-of-file newline
+		"arrow-parens": ["warn", "as-needed"], // Arrow function parenthesis
+		"indent": [ "warn", 2] // Make sure all indentations are 2 spaces
+		// More stuff here
+	}
+}

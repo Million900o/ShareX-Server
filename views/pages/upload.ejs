@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Upload - ShareX-Server</title>
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <link rel="shortcut icon" href="/assets/favicon.png" />
+
+  <!-- meta tags -->
+  <meta content="Upload - ShareX-Server" property="og:title">
+  <!-- meta tags needed -->
+</head>
+
+<body>
+  <%- include('../parts/navbar.ejs') %>
+
+  <div class="title">
+    <h2>Upload</h2>
+  </div>
+
+  <div class="login">
+    <form action="/api/bupload/" method="post" enctype="multipart/form-data">
+
+      <div class="formOption">
+        <input type="file" name="file" required />
+      </div>
+
+      <div class="submit">
+        <input type="submit" class="formSubmit" value="Upload!">
+      </div>
+
+    </form>
+  </div>
+
+  <% if (error) { %>
+  <div class="errorDiv">
+    <a class="error"><%= error %></a>
+  </div>
+  <% } else if (success) { %>
+  <div class="successDiv">
+    <a class="success" href="<%= success %>"><%= success %></a>
+  </div>
+  <% } %>
+
+</body>
+
+</html>

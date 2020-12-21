@@ -4,9 +4,12 @@
   "description": "A ShareX server.",
   "main": "index.js",
   "dependencies": {
+    "bcrypt": "^5.0.0",
+    "cookie-parser": "^1.4.5",
     "eslint": "^7.16.0",
     "eslint-plugin-import": "^2.22.1",
     "express": "^4.17.1",
+    "express-fileupload": "^1.2.0",
     "express-session": "^1.17.1",
     "file-storage-node-handler": "github:million900o/file-storage-node-handler",
     "loggers": "^0.0.4",
