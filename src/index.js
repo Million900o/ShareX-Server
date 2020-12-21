@@ -144,7 +144,9 @@ class ShareXServer {
         users: [],
       },
       domain: this.defaults.domain,
-      subdomains: {},
+      subdomains: {
+        '@': 'default'
+      },
       owner: 'server',
       secure: this.defaults.secure
     });
