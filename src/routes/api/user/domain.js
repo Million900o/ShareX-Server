@@ -29,7 +29,19 @@ router.post('/api/user/domain', async (req, res) => {
           await req.app.server.models.UserModel.updateOne(req.session.userData, { domain: { domain: domain, subdomain: '' } });
           req.session.userData.domain = { domain: domain, subdomain: '' };
           res.redirect('/dashboard?page=domain&success=Domain successfully updated to: ' + domain + '.');
-        } else res.redirect('/dashboard?page=domain&error=Domain already exists.');
+        } else {
+          if(!domainCheck.subdomains[req.userData.authentication.username]) {
+            domainCheck.subdomains[req.userData.authentication.username] = req.session.userData.id;
+            req.session.userData.domain = { domain: domain, subdomain: req.userData.authentication.username };
+            await req.app.server.models.UserModel.updateOne({ id: req.session.userData.id }, req.session.userData);
+            res.redirect('/dashboard?page=domain&success=Domain successfully updated to: ' + domain + '.');
+          } else if(!domainCheck.subdomains[req.userData.authentication.id]) {
+            domainCheck.subdomains[req.userData.id] = req.session.userData.id;
+            req.session.userData.domain = { domain: domain, subdomain: req.userData.id };
+            await req.app.server.models.UserModel.updateOne({ id: req.session.userData.id }, req.session.userData);
+            res.redirect('/dashboard?page=domain&success=Domain successfully updated to: ' + domain + '.');
+          } else res.redirect('/dashboard?page=domain&error=Domain already registered.');
+        }
       } else res.redirect('/dashboard?page=domain&error=Incorrect Password.');
       return;
     });
