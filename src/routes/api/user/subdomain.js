@@ -8,8 +8,9 @@ router.use(urlencoded({ extended: true }));
 
 router.post('/api/user/subdomain', async (req, res) => {
   const password = req.body.password;
-  const subdomain = req.body.subdomain;
+  let subdomain = req.body.subdomain;
   if (password && subdomain) {
+    subdomain = subdomain.toLowerCase();
     bcrypt.compare(password, req.session.userData.authentication.password).then(async e => {
       if (e) {
         const domain = await req.app.server.models.DomainModel.findOne({ domain: req.session.userData.domain.domain });

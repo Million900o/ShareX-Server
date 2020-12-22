@@ -18,6 +18,7 @@ router.post('/api/signup', async (req, res) => {
       if(!userCheck) {
         bcrypt.hash(password, req.app.server.authentication.passwords.saltRounds).then(async hash => {
           const userID = Date.now();
+          const subdomain = username.toLowerCase();
           await req.app.server.models.UserModel.create({
             id: userID,
             authentication: {
@@ -36,14 +37,15 @@ router.post('/api/signup', async (req, res) => {
               user_type: req.app.server.defaults.userType,
             },
             domain: {
-              subdomain: username,
+              subdomain: subdomain,
               domain: req.app.server.defaults.domain,
             },
           });
           const userData = await req.app.server.models.UserModel.findOne({ id: userID });
           req.session.userData = userData;
           const domain = await req.app.server.models.DomainModel.findOne({ domain: req.session.userData.domain.domain });
-          domain.subdomains[username] = userID;
+          domain.subdomains[subdomain] = userID;
+          await req.app.server.models.DomainModel.updateOne({ domain: req.session.userData.domain.domain }, domain);
           res.redirect('/dashboard');
         });
       } else res.redirect('/signup?error=User already exists.');
