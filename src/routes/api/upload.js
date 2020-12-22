@@ -10,12 +10,12 @@ const fs = require('fs');
 const path = require('path');
 const random = require('../../utils/random.js');
 
-router.use(fileUpload({
-  limits: {
-    fileSize: Infinity,
-  },
-  useTempFiles: true,
-}));
+// router.use(fileUpload({
+//   limits: {
+//     fileSize: Infinity,
+//   },
+//   useTempFiles: true,
+// }));
 
 router.post('/upload', tokenAuthentication, async (req, res) => {
   if (req.files && req.files.file) {
