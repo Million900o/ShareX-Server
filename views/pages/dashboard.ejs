@@ -27,8 +27,6 @@
     <%- include('../parts/dashboard/account.ejs') %>
   <% } else if (page === "username") {%>
     <%- include('../parts/dashboard/username.ejs') %>
-  <% } else if (page === "subdomain") {%>
-    <%- include('../parts/dashboard/subdomain.ejs') %>
   <% } else if (page === "domain") {%>
     <%- include('../parts/dashboard/domain.ejs') %>
   <% } %>
@@ -44,19 +42,16 @@
         <a>Date Created: <%= new Date(user.info.created_date).toLocaleString() %></a><br>
         <a>Uploads: <%= user.stats.uploads.toString() %></a><br>
         <a>Redirects: <%= user.stats.redirects.toString() %></a><br>
-        <a>Domain: <%= user.domain.domain %></a><br>
-        <% if (user.domain.subdomain) { %> <a>Subdomain: <%= user.domain.subdomain %></a><br> <% } %> 
+        <a>Domain: <%= user.domain %></a><br>
       </div>
     </div>
     <div class="pages">
       <a class="nextPage" href="?page=password">Change Password</a>
       <a class="nextPage" href="?page=username">Change Username</a>
-      <a class="nextPage" href="?page=subdomain">Change Subdomain</a>
     </div><br>
     <div class="pages">
       <a class="nextPage" href="?page=files">Delete All Files</a>
       <a class="nextPage" href="?page=account">Delete Account</a>
-      <a class="nextPage" target="_blank" href="/files/download">Download Files</a>
     </div><br>
     <div class="pages">
       <a class="nextPage" href="?page=domain">Change Domain</a>

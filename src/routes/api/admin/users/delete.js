@@ -12,10 +12,6 @@ router.get('/api/admin/delete/:id', passwordAuthentication, async (req, res) => 
     if (id) {
       const userData = await req.app.server.models.UserModel.findOne({ id: id });
       if (userData) {
-        const domainData = await req.app.server.models.DomainModel.findOne({ domain: userData.domain.domain });
-        if(userData.domain.domain !== req.app.server.defaults.domain && domainData.owner == userData.id) {
-          await req.app.server.models.DomainModel.deleteOne({ domain: userData.domain.domain });
-        }
         await req.app.server.models.UserModel.deleteOne({ id: id });
         // TODO: change it so its like not shit (spamming api)
         const files = await req.app.server.models.FileModel.find({ 'info.uploader': userData.id });

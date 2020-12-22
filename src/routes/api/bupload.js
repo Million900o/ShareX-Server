@@ -59,9 +59,7 @@ router.post('/api/bupload', passwordAuthentication, async (req, res) => {
           },
         });
         await req.app.server.models.UserModel.updateOne(req.session.userData, { 'stats.upload_size': neededStorage, 'stats.uploads': req.session.userData.stats.uploads + 1 });
-        const userURL = (req.domain.secure ? 'https://' : 'http://') +
-          (req.session.userData.domain.subdomain ? req.session.userData.domain.subdomain + '.' : '') +
-          (req.session.userData.domain.domain);
+        const userURL = (req.app.server.defaults.secure ? 'https://' : 'http://') + (req.session.userData.domain);
         res.redirect('/upload?success=' + userURL + '/files/' + fileID);
         if (req.files.file.size < 4 * 1024 * 1024)
           await process.f.redis.set('files.' + databaseID, JSON.stringify(fileBuffer), 'EX', 60 * 60);

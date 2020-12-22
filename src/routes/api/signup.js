@@ -36,16 +36,10 @@ router.post('/api/signup', async (req, res) => {
               created_date: new Date(),
               user_type: req.app.server.defaults.userType,
             },
-            domain: {
-              subdomain: subdomain,
-              domain: req.app.server.defaults.domain,
-            },
+            domain: subdomain + '.' + req.app.server.defaults.domain
           });
           const userData = await req.app.server.models.UserModel.findOne({ id: userID });
           req.session.userData = userData;
-          const domain = await req.app.server.models.DomainModel.findOne({ domain: req.session.userData.domain.domain });
-          domain.subdomains[subdomain] = userID;
-          await req.app.server.models.DomainModel.updateOne({ domain: req.session.userData.domain.domain }, domain);
           res.redirect('/dashboard');
         });
       } else res.redirect('/signup?error=User already exists.');

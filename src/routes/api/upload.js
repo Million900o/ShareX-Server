@@ -57,9 +57,7 @@ router.post('/upload', tokenAuthentication, async (req, res) => {
           },
         });
         await req.app.server.models.UserModel.updateOne(req.session.userData, { 'stats.upload_size': neededStorage, 'stats.uploads': req.session.userData.stats.uploads + 1 });
-        const userURL = ((await req.app.server.models.DomainModel.findOne({ domain: req.session.userData.domain.domain })).secure ? 'https://' : 'http://') +
-          (req.session.userData.domain.subdomain ? req.session.userData.domain.subdomain + '.' : '') +
-          (req.session.userData.domain.domain);
+        const userURL = (req.app.server.defaults.secure ? 'https://' : 'http://') + (req.session.userData.domain);
         res.json({
           succcess: true,
           url: userURL + '/files/' + fileID,

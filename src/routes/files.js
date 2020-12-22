@@ -11,7 +11,7 @@ router.get('/files/all', passwordAuthentication, async (req, res) => {
   const files = (await req.app.server.models.FileModel.find({ 'info.uploader': req.session.userData.id })).sort(
     (a, b) => new Date(a.UploadedAt) - new Date(b.UploadedAt),
   ).reverse().slice(page * 100, 100 + (page * 100));
-  res.render('pages/files.ejs', { user: req.session.userData, files: files, page: page, secure: (await req.app.server.models.DomainModel.findOne({ domain: req.session.userData.domain.domain }))?.secure });
+  res.render('pages/files.ejs', { user: req.session.userData, files: files, page: page, secure: req.app.server.defaults.secure });
   return;
 });
 
@@ -21,9 +21,7 @@ router.get('/files/:id', async (req, res) => {
     const testPath = path.resolve('files/' + req.params.id);
     if(fs.existsSync(testPath)) return res.sendFile(testPath)
     const domain = req.domain;
-    let subdomain = req.subdomains.join(' ');
-    subdomain = subdomain ? subdomain : '@';
-    const databaseID = domain.subdomains[subdomain] + ':' + fileID;
+    const databaseID = (await req.app.server.models.UserModel.findOne({ domain: domain })).id + ':' + fileID;
     const fileData = await req.app.server.models.FileModel.findOne({ id: databaseID });
     if (fileData) {
       await req.app.server.models.FileModel.updateOne(fileData, { 'stats.views': fileData.stats.views + 1 });

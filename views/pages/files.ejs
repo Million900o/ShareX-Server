@@ -35,9 +35,9 @@
         <a class="fileDataA">Uploaded At: <%= new Date(e.info.upload_date).toLocaleString() %></a><br>
         <a class="fileDataA">Views: <%= e.stats.views %></a><br>
         <a class="fileDataA">Link: </a>
-        <a class="Link" title="Go to <%= e.info.original_name %>" href="http<%= secure ? 's' : '' %>://<%= user.domain.subdomain ? user.domain.subdomain + '.' : '' %><%= user.domain.domain %>/files/<%= e.id.split(':').pop() %>">Click Here</a><br>
+        <a class="Link" title="Go to <%= e.info.original_name %>" href="http<%= secure ? 's' : '' %>://<%= user.domain %>/files/<%= e.id.split(':').pop() %>">Click Here</a><br>
         <a class="fileDataA">Delete Link: </a>
-        <a class="Link" title="Delete <%= e.originalName %>" href="http<%= secure ? 's' : '' %>://<%= user.domain.subdomain ? user.domain.subdomain + '.' : '' %><%= user.domain.domain %>/delete/<%= e.deletion_key.split(':').pop() %>">Click Here</a><br>
+        <a class="Link" title="Delete <%= e.originalName %>" href="http<%= secure ? 's' : '' %>://<%= user.domain %>/delete/<%= e.deletion_key.split(':').pop() %>">Click Here</a><br>
       </div>
     </div>
     <% }) %>

@@ -15,7 +15,6 @@ const nodeHandler = require('file-storage-node-handler');
 
 // MongoDB models
 const mongoose = require('mongoose');
-const DomainModel = require('./models/domain.js');
 const FileModel = require('./models/file.js');
 const UserModel = require('./models/user.js');
 
@@ -43,7 +42,6 @@ const deleteAccountRoute = require('./routes/api/user/account.js');
 const domainRoute = require('./routes/api/user/domain.js');
 const deleteFilesRoute = require('./routes/api/user/files.js');
 const passwordRoute = require('./routes/api/user/password.js');
-const subdomainRoute = require('./routes/api/user/subdomain.js');
 const usernameRoute = require('./routes/api/user/username.js');
 // API ADMIN
 const loginAsRoute = require('./routes/api/admin/users/login.js');
@@ -133,25 +131,10 @@ class ShareXServer {
   }
 
   async startMongo() {
-    this.models = {
-      FileModel, UserModel, DomainModel
-    };
+    this.models = {  FileModel, UserModel };
     this.logger.debug('Connecting to MongoDB');
     this.mongodb = mongoose.connect(this.mongoConfig.connectURI, this.mongoConfig.connectOptions);
     this.logger.log('Connected to MongoDB at:', this.mongoConfig.connectURI);
-    const checkDomain = await this.models.DomainModel.findOne({ domain: this.defaults.domain });
-    if(!checkDomain) await this.models.DomainModel.create({
-      info: {
-        created_date: new Date(),
-        users: [],
-      },
-      domain: this.defaults.domain,
-      subdomains: {
-        '@': 'default'
-      },
-      owner: 'server',
-      secure: this.defaults.secure
-    });
     const userCheck = await this.models.UserModel.findOne({ id: 'default' });
     if(!userCheck) await this.models.UserModel.create({
       id: 'default',
@@ -170,10 +153,7 @@ class ShareXServer {
         created_date: new Date(),
         user_type: 'owner',
       },
-      domain: {
-        subdomain: '',
-        domain: this.defaults.domain,
-      },
+      domain: this.defaults.domain
     });
   }
 
@@ -216,7 +196,6 @@ class ShareXServer {
     this.app.use(domainRoute);
     this.app.use(deleteFilesRoute);
     this.app.use(passwordRoute);
-    this.app.use(subdomainRoute);
     this.app.use(usernameRoute);
 
     this.app.use(loginAsRoute);

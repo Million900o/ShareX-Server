@@ -17,10 +17,7 @@ const UserSchema = Schema({
     created_date: String,
     user_type: String,
   },
-  domain: {
-    subdomain: String,
-    domain: String,
-  },
+  domain: String,
 });
 
 module.exports = model('users', UserSchema);
