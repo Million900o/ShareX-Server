@@ -30,13 +30,15 @@ router.post('/api/user/domain', async (req, res) => {
           req.session.userData.domain = { domain: domain, subdomain: '' };
           res.redirect('/dashboard?page=domain&success=Domain successfully updated to: ' + domain + '.');
         } else {
-          if(!domainCheck.subdomains[req.session.userData.authentication.username]) {
+          if (!domainCheck.subdomains[req.session.userData.authentication.username]) {
             domainCheck.subdomains[req.session.userData.authentication.username] = req.session.userData.id;
+            await req.app.server.models.DomainModel.updateOne({ domain: domainCheck.domain }, domainCheck);
             req.session.userData.domain = { domain: domain, subdomain: req.session.userData.authentication.username };
             await req.app.server.models.UserModel.updateOne({ id: req.session.userData.id }, req.session.userData);
             res.redirect('/dashboard?page=domain&success=Domain successfully updated to: ' + domain + '.');
-          } else if(!domainCheck.subdomains[req.session.userData.authentication.id]) {
+          } else if (!domainCheck.subdomains[req.session.userData.authentication.id]) {
             domainCheck.subdomains[req.session.userData.id] = req.session.userData.id;
+            await req.app.server.models.DomainModel.updateOne({ domain: domainCheck.domain }, domainCheck);
             req.session.userData.domain = { domain: domain, subdomain: req.session.userData.id };
             await req.app.server.models.UserModel.updateOne({ id: req.session.userData.id }, req.session.userData);
             res.redirect('/dashboard?page=domain&success=Domain successfully updated to: ' + domain + '.');
