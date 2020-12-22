@@ -12,8 +12,8 @@ router.post('/api/user/username', async (req, res) => {
   if (password && username) {
     bcrypt.compare(password, req.session.userData.authentication.password).then(async e => {
       if (e) {
-        await req.app.server.models.UserModel.updateOne(req.secure.userData, { 'authentication.username': username });
         req.session.userData.authentication.username = username;
+        await req.app.server.models.UserModel.updateOne({ id: req.session.userData.id }, req.session.userData);
         res.redirect('/dashboard?page=username&success=Username successfully updated to: ' + username);
       } else res.redirect('/dashboard?page=username&error=Incorrect password.');
       return;
