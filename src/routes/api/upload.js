@@ -3,7 +3,7 @@ const router = Router();
 
 // Middleware
 const tokenAuthentication = require('../../middleware/tokenAuthentication.js');
-const fileUpload = require('express-fileupload');
+// const fileUpload = require('express-fileupload');
 
 // Utils
 const fs = require('fs');

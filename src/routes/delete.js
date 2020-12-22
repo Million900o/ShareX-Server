@@ -13,6 +13,8 @@ router.get('/delete/:key', async (req, res) => {
       await req.app.server.models.FileModel.deleteOne(fileData);
       await process.f.redis.del('files.' + fileData.id);
       await req.app.server.storage.delFile(fileData.node.file_id, fileData.node.node_id);
+      req.session.userData.stats.uploads--;
+      await req.app.server.models.UserModel.updateOne({ id: req.session.id }, { 'stats.uploads': req.session.userData.stats.uploads });
       res.render('pages/error.ejs', { message: 'File Successfully deleted', error: 200, user: undefined });
       return;
     } else res.render('pages/error.ejs', { message: 'File Not Found', error: 404, user: undefined });
