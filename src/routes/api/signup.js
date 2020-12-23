@@ -26,7 +26,7 @@ router.post('/api/signup', async (req, res) => {
       if (!userCheck) {
         bcrypt.hash(password, req.app.server.authentication.passwords.saltRounds).then(async hash => {
           const userID = Date.now();
-          const subdomain = username.toLowerCase();
+          const subdomain = encodeURIComponent(username.toLowerCase());
           try {
             await req.app.server.models.UserModel.create({
               id: userID,

@@ -8,11 +8,11 @@ router.use(urlencoded({ extended: true }));
 
 router.post('/api/user/domain', async (req, res) => {
   const password = req.body.password;
-  const domain = req.body.domain;
+  const domain = encodeURIComponent(req.body.domain);
   if (password && domain) {
     bcrypt.compare(password, req.session.userData.authentication.password).then(async e => {
       if (e) {
-        let userData;
+        let userCheck;
         try {
           userCheck = await req.app.server.models.UserModel.findOne({ domain: domain });
         } catch (err) {

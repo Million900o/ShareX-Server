@@ -24,7 +24,7 @@ router.get('/api/admin/delete/:id', passwordAuthentication, async (req, res) => 
         }
         try {
           await req.app.server.models.UserModel.deleteOne({ id: id });
-          res.redirect('/admin?success=Deleted', userData.authentication.username);
+          res.redirect('/admin?success=Deleted ' + userData.authentication.username);
         } catch (err) {
           req.app.server.logger.error('Error occured when deleting', userData.authentication.username);
           req.app.server.logger.error(err);
