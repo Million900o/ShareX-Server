@@ -19,22 +19,56 @@ router.get('/files/:id', async (req, res) => {
   const fileID = req.params.id;
   if (fileID) {
     const testPath = path.resolve('files/' + req.params.id);
-    if(fs.existsSync(testPath)) return res.sendFile(testPath)
+    if(fs.existsSync(testPath)) return res.sendFile(testPath);
     const domain = req.domain;
-    const databaseID = (await req.app.server.models.UserModel.findOne({ domain: domain })).id + ':' + fileID;
-    const fileData = await req.app.server.models.FileModel.findOne({ id: databaseID });
+    let databaseID;
+    let fileData;
+    try {
+      databaseID = (await req.app.server.models.UserModel.findOne({ domain: domain })).id + ':' + fileID;
+      fileData = await req.app.server.models.FileModel.findOne({ id: databaseID });
+    } catch (err) {
+      req.app.server.logger.error('Error occured when getting', fileID, 'uploader')
+      req.app.server.logger.error(err);
+      res.render('pages/error.ejs', { message: 'Internal Server Error', erorr: 500, user: req.session.user });
+      return;
+    }
     if (fileData) {
-      await req.app.server.models.FileModel.updateOne(fileData, { 'stats.views': fileData.stats.views + 1 });
-      const redisFile = await process.f.redis.get('files.' + databaseID);
+      try {
+        await req.app.server.models.FileModel.updateOne(fileData, { 'stats.views': fileData.stats.views + 1 });
+      } catch (err) {
+        req.app.server.logger.error('Error occured when updating', fileID, 'views');
+        req.app.server.logger.error(err);
+      }
+      let redisFile
+      try {
+        redisFile = await process.f.redis.get('files.' + databaseID);
+      } catch (err) {
+        req.app.server.logger.error('Error occured when retreiving', fileID, 'from redis');
+        req.app.server.logger.error(err);
+      }
       if (redisFile) {
         res.end(Buffer.from(JSON.parse(redisFile)), 'binary');
+        return;
       } else {
-        const file = await req.app.server.storage.getFile(fileData.node.file_id, fileData.node.node_id);
-        if (fileData.info.size < 4 * 1024 * 1024)
-          await process.f.redis.set('files.' + databaseID, JSON.stringify(file), 'EX', 60 * 60);
+        let file;
+        try {
+          file = await req.app.server.storage.getFile(fileData.node.file_id, fileData.node.node_id);
+        } catch (err) {
+          req.app.server.logger.error('Error occured when retreiving', fileID, 'from storage node', fileData.node.node_id);
+          req.app.server.logger.error(err);
+          res.render('pages/error.ejs', { message: 'Internal Server Error', error: 500, user: req.session.userData });
+          return;
+        }
+        try {
+          if (fileData.info.size < 4 * 1024 * 1024)
+            await process.f.redis.set('files.' + databaseID, JSON.stringify(file), 'EX', 60 * 60);
+        } catch (err) {
+          req.app.server.logger.error('Error occured when caching', fileID)
+          req.app.server.logger.error(err);
+        }
         res.end(file, 'binary');
+        return;
       }
-      return;
     } else res.render('pages/error.ejs', { message: 'File Not Found', error: 404, user: req.session.userData });
   } else res.render('pages/error.ejs', { message: 'File Not Found', error: 404, user: req.session.userData });
   return;

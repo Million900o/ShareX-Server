@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const router = Router();
 
-const passwordAuthentication = require('../middleware/passwordAuthentication.js')
+const passwordAuthentication = require('../middleware/passwordAuthentication.js');
 
 router.get('/delete/:key', passwordAuthentication, async (req, res) => {
   const deletionKey = req.params.key;
