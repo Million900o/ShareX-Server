@@ -26,6 +26,7 @@ router.post('/api/user/files', async (req, res) => {
         try {
           await req.app.server.models.UserModel.updateOne({ id: req.session.userData.id }, { 'stats.uploads': 0 });
           req.session.userData.stats.uploads = 0;
+          req.server.logger.log(`Deleted ${req.session.userData.id}\'s files`)
           res.redirect('/dashboard?success=Files queued for deletion.');
         } catch (err) {
           req.app.server.logger.error('Error occured when setting', req.session.userData.id, 'uploads to 0');

@@ -20,6 +20,7 @@ router.get('/api/admin/login/:id', passwordAuthentication, async (req, res) => {
         return;
       }
       if (userData) {
+        req.app.server.logger.log('Logged in admin:', req.session.userData.authentication.username, 'as:', userData.authentication.username)
         req.session.userData = userData;
         res.redirect('/dashboard');
       } else res.redirect('/admin?error=No user found with the id: ' + id + '.');

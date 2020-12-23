@@ -25,6 +25,7 @@ router.get('/api/admin/deletefiles/:id', passwordAuthentication, async (req, res
         try {
           await req.app.server.models.UserModel.updateOne({ id: userData.id }, { 'stats.uploads': 0 });
           userData.stats.uploads = 0;
+          req.app.server.logger.log(`Deleted ${userData.id}\'s Files`);
           res.redirect('/admin?success=' + userData.authentication.username + '\'s files were queued for deletion.');
         } catch (err) {
           req.app.server.logger.error('Error occured when setting', userData.id, 'uploads to 0');

@@ -31,6 +31,7 @@ router.post('/api/user/domain', async (req, res) => {
             res.redirect('/dashboard?page=domain&error=Internal Server Error');
             return;
           } 
+          req.server.logger.log(`Changed ${req.session.userData.id}\'s domain to:`, domain)
           res.redirect('/dashboard?page=domain&success=Domain successfully updated to: ' + domain + '.');
           return;
         } else res.redirect('/dashboard?page=domain&error=Domain is already taken.');

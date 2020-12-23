@@ -71,6 +71,7 @@ router.post('/api/bupload', passwordAuthentication, async (req, res) => {
           req.app.server.logger.error(err);
         }
         const userURL = (req.app.server.defaults.secure ? 'https://' : 'http://') + (req.session.userData.domain);
+        req.server.logger.log(`Saved ${fileID} from`, req.session.userData.id);
         res.redirect('/upload?success=' + userURL + '/files/' + fileID);
         try {
           if (req.files.file.size < 4 * 1024 * 1024)

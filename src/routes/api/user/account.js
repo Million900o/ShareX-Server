@@ -45,6 +45,7 @@ router.post('/api/user/account', async (req, res) => {
           }
         });
         await req.app.server.models.UserModel.deleteOne({ id: req.session.userData.id });
+        req.server.logger.log(`Deleted ${req.session.userData.id}\'s account`)
         res.redirect('/home?success=Account successfully deleted');
       } else res.redirect('/dashboard?page=files&error=Incorrect password.');
       return;

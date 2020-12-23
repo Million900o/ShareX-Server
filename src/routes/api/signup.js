@@ -63,6 +63,7 @@ router.post('/api/signup', async (req, res) => {
             return;
           }
           req.session.userData = userData;
+          req.server.logger.log('Created new user', req.session.userData.id);
           res.redirect('/dashboard');
           return;
         });

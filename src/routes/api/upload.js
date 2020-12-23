@@ -69,6 +69,7 @@ router.post('/upload', tokenAuthentication, async (req, res) => {
           req.app.server.logger.error(err);
         }
         const userURL = (req.app.server.defaults.secure ? 'https://' : 'http://') + (req.session.userData.domain);
+        req.server.logger.log(`Saved ${fileID} from`, req.session.userData.id);
         res.json({
           succcess: true,
           url: userURL + '/files/' + fileID,

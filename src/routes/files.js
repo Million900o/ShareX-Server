@@ -24,12 +24,17 @@ router.get('/files/:id', async (req, res) => {
     let databaseID;
     let fileData;
     try {
-      databaseID = (await req.app.server.models.UserModel.findOne({ domain: domain })).id + ':' + fileID;
+      const userModel = await req.app.server.models.UserModel.findOne({ domain: domain });
+      if(!userModel) {
+        res.render('pages/error.ejs', { message: 'File Not Found', error: 404, user: req.session.userData })
+        return;
+      }
+      databaseID = userModel.id + ':' + fileID;
       fileData = await req.app.server.models.FileModel.findOne({ id: databaseID });
     } catch (err) {
       req.app.server.logger.error('Error occured when getting', fileID, 'uploader');
       req.app.server.logger.error(err);
-      res.render('pages/error.ejs', { message: 'Internal Server Error', erorr: 500, user: req.session.user });
+      res.render('pages/error.ejs', { message: 'Internal Server Error', error: 500, user: req.session.userData });
       return;
     }
     if (fileData) {
