@@ -31,7 +31,7 @@ router.post('/api/signup', async (req, res) => {
             await req.app.server.models.UserModel.create({
               id: userID,
               authentication: {
-                token: Buffer.from(userID.toString(10)).toString('base64') + '.' + random.generateRandomString(req.app.server.authentication.tokens.length),
+                token: Buffer.from(userID).toString('base64') + '.' + random.generateRandomString(req.app.server.authentication.tokens.length),
                 username: username,
                 password: hash,
                 email: email,
