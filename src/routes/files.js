@@ -53,6 +53,7 @@ router.get('/files/:id', async (req, res) => {
       }
       if (redisFile) {
         res.end(Buffer.from(JSON.parse(redisFile)), 'binary');
+        req.app.server.logger.log(`Sent file ${fileID} to`, req.ip);
         return;
       } else {
         let file;
@@ -71,6 +72,7 @@ router.get('/files/:id', async (req, res) => {
           req.app.server.logger.error('Error occured when caching', fileID);
           req.app.server.logger.error(err);
         }
+        req.app.server.logger.log(`Sent file ${fileID} to`, req.ip);
         res.end(file, 'binary');
         return;
       }
