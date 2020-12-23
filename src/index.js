@@ -3,6 +3,7 @@
 const express = require('express');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
+const FlakeId = require('flakeid');
 
 // Redis stuff
 const { promisify } = require('util');
@@ -174,7 +175,8 @@ class ShareXServer {
     }));
     this.app.use(cookieParser());
     this.app.server = this;
-    
+    this.flake = new FlakeId();
+
     this.app.use(domainHandling);
 
     this.app.use(adminRoute);
