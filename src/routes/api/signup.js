@@ -25,13 +25,13 @@ router.post('/api/signup', async (req, res) => {
       }
       if (!userCheck) {
         bcrypt.hash(password, req.app.server.authentication.passwords.saltRounds).then(async hash => {
-          const userID = Date.now();
-          const subdomain = encodeURIComponent(username.toLowerCase());
+          const userID = req.app.server.flake.gen();
+          const subdomain = username.toLowerCase();
           try {
             await req.app.server.models.UserModel.create({
               id: userID,
               authentication: {
-                token: random.generateRandomString(req.app.server.authentication.tokens.length),
+                token: Buffer.from(userID.toString(10)).toString('base64') + '.' + random.generateRandomString(req.app.server.authentication.tokens.length),
                 username: username,
                 password: hash,
                 email: email,

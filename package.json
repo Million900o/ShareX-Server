@@ -13,6 +13,7 @@
     "express-fileupload": "^1.2.0",
     "express-session": "^1.17.1",
     "file-storage-node-handler": "github:million900o/file-storage-node-handler",
+    "flakeid": "^1.0.0",
     "loggers": "github:million900o/loggers",
     "mongoose": "^5.11.8",
     "redis": "^3.0.2"
