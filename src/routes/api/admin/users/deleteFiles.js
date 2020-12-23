@@ -13,14 +13,44 @@ router.get('/api/admin/deletefiles/:id', passwordAuthentication, async (req, res
       const userData = await req.app.server.models.UserModel.findOne({ id: id });
       if (userData) {
         // TODO: change it so its like not shit (spamming api)
-        const files = await req.app.server.models.FileModel.find({ 'info.uploader': userData.id });
-        await req.app.server.models.UserModel.updateOne({ id: id }, { 'stats.uploads': 0 });
-        res.redirect('/admin?success=Files successfully deleted');
-        files.forEach(async file => {
-          await req.app.server.models.FileModel.deleteOne(file);
-          await process.f.redis.del('files.' + file.id);
-          await req.app.server.storage.delFile(file.node.file_id, file.node.node_id);
+        let files;
+        try {
+          files = await req.app.server.models.FileModel.find({ 'info.uploader': userData.id });
+        } catch (err) {
+          req.app.server.logger.error('Error occured when getting all files from', userData.id);
+          req.app.server.logger.error(err);
+          res.redirect('/dashboard?error=Internal Server Error');
           return;
+        }
+        try {
+          await req.app.server.models.UserModel.updateOne({ id: userData.id }, { 'stats.uploads': 0 });
+          userData.stats.uploads = 0;
+          res.redirect('/dashboard?success=Files queued for deletion.');
+        } catch (err) {
+          req.app.server.logger.error('Error occured when setting', userData.id, 'uploads to 0');
+          req.app.server.logger.error(err);
+          res.redirect('/dashboard?error=Internal Server Error');
+          return;
+        }
+        files.forEach(async file => {
+          try {
+            await req.app.server.models.FileModel.deleteOne(file);
+          } catch(err) {
+            req.app.logger.error('Error occured when deleting', file.id, 'from the DB');
+            req.app.logger.error(err);
+          }
+          try {
+            await process.f.redis.del('files.' + file.id);
+          } catch (err) {
+            req.app.logger.error('Error occured when removing', file.id, 'from cache');
+            req.app.logger.error(err);
+          }
+          try {
+            await req.app.server.storage.delFile(file.node.file_id, file.node.node_id);
+          } catch (err) {
+            req.app.logger.error('Error occured when deleting', fileData.id, 'from storage node', fileData.node.node_id);
+            req.app.logger.error(err);
+          }
         });
       } else res.redirect('/login?error=No user found with the id: ' + id + '.');
     } else res.redirect('/admin?error=No ID was given for login.');

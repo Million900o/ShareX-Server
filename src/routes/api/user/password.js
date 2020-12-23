@@ -15,7 +15,14 @@ router.post('/api/user/password', async (req, res) => {
       if (e) {
         if (newPassword === newPasswordCheck) {
           bcrypt.hash(newPassword, req.app.server.authentication.passwords.saltRounds).then(async hash => {
-            await req.app.server.models.UserModel.updateOne(req.session.userData, { 'authentication.password': hash });
+            try {
+              await req.app.server.models.UserModel.updateOne(req.session.userData, { 'authentication.password': hash });
+            } catch (err) {
+              req.app.server.logger.error('Error occured when changing', req.session.userData.id, 'password');
+              req.app.server.logger.error(err);
+              res.redirect('/dashboard?page=password&error=Internal Server Error');
+              return;
+            }
             req.session.userData.authentication.password = hash;
             res.redirect('/dashboard?page=password&success=Password successfully updated!');
             return;

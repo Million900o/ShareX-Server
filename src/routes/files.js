@@ -27,7 +27,7 @@ router.get('/files/:id', async (req, res) => {
       databaseID = (await req.app.server.models.UserModel.findOne({ domain: domain })).id + ':' + fileID;
       fileData = await req.app.server.models.FileModel.findOne({ id: databaseID });
     } catch (err) {
-      req.app.server.logger.error('Error occured when getting', fileID, 'uploader')
+      req.app.server.logger.error('Error occured when getting', fileID, 'uploader');
       req.app.server.logger.error(err);
       res.render('pages/error.ejs', { message: 'Internal Server Error', erorr: 500, user: req.session.user });
       return;
@@ -39,7 +39,7 @@ router.get('/files/:id', async (req, res) => {
         req.app.server.logger.error('Error occured when updating', fileID, 'views');
         req.app.server.logger.error(err);
       }
-      let redisFile
+      let redisFile;
       try {
         redisFile = await process.f.redis.get('files.' + databaseID);
       } catch (err) {
@@ -63,7 +63,7 @@ router.get('/files/:id', async (req, res) => {
           if (fileData.info.size < 4 * 1024 * 1024)
             await process.f.redis.set('files.' + databaseID, JSON.stringify(file), 'EX', 60 * 60);
         } catch (err) {
-          req.app.server.logger.error('Error occured when caching', fileID)
+          req.app.server.logger.error('Error occured when caching', fileID);
           req.app.server.logger.error(err);
         }
         res.end(file, 'binary');

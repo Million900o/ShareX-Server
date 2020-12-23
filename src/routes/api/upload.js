@@ -38,33 +38,49 @@ router.post('/upload', tokenAuthentication, async (req, res) => {
         const deletionKey = random.generateRandomString(50);
         const databaseKey = req.session.userData.id + ':' + deletionKey;
         const databaseID = req.session.userData.id + ':' + fileID;
-        await req.app.server.models.FileModel.create({
-          id: databaseID,
-          deletion_key: databaseKey,
-          info: {
-            original_name: req.files.file.name,
-            uploader: req.session.userData.id,
-            upload_date: new Date(),
-            mimiType: req.files.file.mimetype,
-            size: req.files.file.size
-          },
-          stats: {
-            views: 0,
-          },
-          node: {
-            node_id: savedFile.node.id,
-            file_id: savedFile.response.id,
-          },
-        });
-        await req.app.server.models.UserModel.updateOne(req.session.userData, { 'stats.upload_size': neededStorage, 'stats.uploads': req.session.userData.stats.uploads + 1 });
+        try {
+          await req.app.server.models.FileModel.create({
+            id: databaseID,
+            deletion_key: databaseKey,
+            info: {
+              original_name: req.files.file.name,
+              uploader: req.session.userData.id,
+              upload_date: new Date(),
+              mimiType: req.files.file.mimetype,
+              size: req.files.file.size
+            },
+            stats: {
+              views: 0,
+            },
+            node: {
+              node_id: savedFile.node.id,
+              file_id: savedFile.response.id,
+            },
+          });
+        } catch (err) {
+          res.status(503).json({ succcess: false, message: 'Internal Server Error' });
+          req.app.server.storage.delFile(savedFile.response.id, savedFile.node.id);
+          return;
+        }
+        try {
+          await req.app.server.models.UserModel.updateOne(req.session.userData, { 'stats.upload_size': neededStorage, 'stats.uploads': req.session.userData.stats.uploads + 1 });
+        } catch (err) {
+          req.app.server.logger.error('Error occured when updating', req.session.userData.id, 'DB document');
+          req.app.server.logger.error(err);
+        }
         const userURL = (req.app.server.defaults.secure ? 'https://' : 'http://') + (req.session.userData.domain);
         res.json({
           succcess: true,
           url: userURL + '/files/' + fileID,
           deletion_url: userURL + '/delete/' + deletionKey
         });
-        if (req.files.file.size < 4 * 1024 * 1024)
-          await process.f.redis.set('files.' + databaseID, JSON.stringify(fileBuffer), 'EX', 60 * 60);
+        try {
+          if (req.files.file.size < 4 * 1024 * 1024)
+            await process.f.redis.set('files.' + databaseID, JSON.stringify(fileBuffer), 'EX', 60 * 60);
+        } catch (err) {
+          req.app.server.logger.error('Error occured when caching', fileID);
+          req.app.server.logger.error(err);
+        }
         fs.unlinkSync(filePath);
         return;
       } else {

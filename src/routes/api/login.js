@@ -10,7 +10,15 @@ router.post('/api/login', async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
   if (username && password) {
-    const userData = await req.app.server.models.UserModel.findOne({ 'authentication.username': username });
+    let userData;
+    try {
+      userData = await req.app.server.models.UserModel.findOne({ 'authentication.username': username });
+    } catch (err) {
+      req.app.server.logger.error('Error occured when retreiving', username, 'from the DB');
+      req.app.server.logger.erro(err);
+      req.redirect('/login?error=Internal Server Error');
+      return;
+    }
     if (userData) {
       bcrypt.compare(password, userData.authentication.password).then(e => {
         if (e) {
