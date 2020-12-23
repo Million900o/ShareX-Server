@@ -21,6 +21,7 @@ const UserModel = require('./models/user.js');
 
 // Middlewares
 const domainHandling = require('./middleware/domainHandling.js');
+const IPParsing = require('./middleware/parseIP.js');
 
 // Routes
 const FORRoute = require('./routes/404.js');
@@ -177,6 +178,7 @@ class ShareXServer {
     this.app.server = this;
     this.flake = new FlakeId();
 
+    this.app.use(IPParsing);
     this.app.use(domainHandling);
 
     this.app.use(adminRoute);
