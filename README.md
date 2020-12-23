@@ -3,6 +3,6 @@
 ## TODO
 - caching for db
 - comments
-- error handling
+- error handling (DONE)
 - ratelimits
 - debug logging (every try/catch block)
