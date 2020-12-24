@@ -167,7 +167,7 @@ class ShareXServer {
     this.app.use(session({
       saveUninitialized: false,
       resave: false,
-      secret: 'aaaaa',
+      secret: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
       cookie: {
         sameSite: true,
         maxAge: 60 * 60 * 1000,
