@@ -24,7 +24,7 @@ router.post('/api/user/domain', async (req, res) => {
         if (!userCheck) {
           try {
             req.session.userData.domain = domain;
-            await req.app.server.models.UserModel.updateOne(req.session.userData, { domain: req.session.userData.domain });
+            await req.app.server.models.UserModel.updateOne({id: req.session.userData.id }, { domain: req.session.userData.domain });
           } catch(err) {
             req.app.server.logger.error('Error occured when updating', req.session.userData.id, 'domain');
             req.app.server.logger.error(err);
