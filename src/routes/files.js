@@ -26,7 +26,7 @@ router.get('/files/:id', async (req, res) => {
     try {
       const userModel = await req.app.server.models.UserModel.findOne({ domain: domain });
       if(!userModel) {
-        res.render('pages/error.ejs', { message: 'File Not Found', error: 404, user: req.session.userData })
+        res.render('pages/error.ejs', { message: 'File Not Found', error: 404, user: req.session.userData });
         return;
       }
       databaseID = userModel.id + ':' + fileID;
