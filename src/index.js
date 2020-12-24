@@ -175,7 +175,7 @@ class ShareXServer {
         secure: this.defaults.secure
       }
     }));
-    app.use(slowDown({
+    this.app.use(slowDown({
       windowMs: 1 * 60 * 1000,
       delayAfter: 15,
       delayMs: 500,
