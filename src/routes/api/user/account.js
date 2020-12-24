@@ -1,10 +1,17 @@
 const { Router, json, urlencoded } = require('express');
 const router = Router();
 
+const slowDown = require("express-slow-down");
+
 const bcrypt = require('bcrypt');
 
 router.use(json());
 router.use(urlencoded({ extended: true }));
+router.use(slowDown({
+  windowMs: 10 * 60 * 1000,
+  delayAfter: 2,
+  delayMs: 800,
+}));
 
 router.post('/api/user/account', async (req, res) => {
   const password = req.body.password;
@@ -28,24 +35,24 @@ router.post('/api/user/account', async (req, res) => {
           try {
             await req.app.server.models.FileModel.deleteOne(file);
           } catch(err) {
-            req.app.logger.error('Error occured when deleting', file.id, 'from the DB');
-            req.app.logger.error(err);
+            req.app.server.logger.error('Error occured when deleting', file.id, 'from the DB');
+            req.app.server.logger.error(err);
           }
           try {
             await process.f.redis.del('files.' + file.id);
           } catch (err) {
-            req.app.logger.error('Error occured when removing', file.id, 'from cache');
-            req.app.logger.error(err);
+            req.app.server.logger.error('Error occured when removing', file.id, 'from cache');
+            req.app.server.logger.error(err);
           }
           try {
             await req.app.server.storage.delFile(file.node.file_id, file.node.node_id);
           } catch (err) {
-            req.app.logger.error('Error occured when deleting', fileData.id, 'from storage node', fileData.node.node_id);
-            req.app.logger.error(err);
+            req.app.server.logger.error('Error occured when deleting', file.id, 'from storage node', file.node.node_id);
+            req.app.server.logger.error(err);
           }
         });
         await req.app.server.models.UserModel.deleteOne({ id: req.session.userData.id });
-        req.server.logger.log(`Deleted ${req.session.userData.id}\'s account`)
+        req.app.server.logger.log(`Deleted ${req.session.userData.id}'s account`);
         res.redirect('/home?success=Account successfully deleted');
       } else res.redirect('/dashboard?page=files&error=Incorrect password.');
       return;

@@ -24,7 +24,7 @@ router.get('/api/admin/delete/:id', passwordAuthentication, async (req, res) => 
         }
         try {
           await req.app.server.models.UserModel.deleteOne({ id: id });
-          req.app.server.logger.log('Deleted user', userData.id)
+          req.app.server.logger.log('Deleted user', userData.id);
           res.redirect('/admin?success=Deleted ' + userData.authentication.username);
         } catch (err) {
           req.app.server.logger.error('Error occured when deleting', userData.authentication.username);
@@ -36,22 +36,22 @@ router.get('/api/admin/delete/:id', passwordAuthentication, async (req, res) => 
           try {
             await req.app.server.models.FileModel.deleteOne(file);
           } catch(err) {
-            req.app.logger.error('Error occured when deleting', file.id, 'from the DB');
-            req.app.logger.error(err);
+            req.app.server.logger.error('Error occured when deleting', file.id, 'from the DB');
+            req.app.server.logger.error(err);
             return;
           }
           try {
             await process.f.redis.del('files.' + file.id);
           } catch (err) {
-            req.app.logger.error('Error occured when removing', file.id, 'from cache');
-            req.app.logger.error(err);
+            req.app.server.logger.error('Error occured when removing', file.id, 'from cache');
+            req.app.server.logger.error(err);
             return;
           }
           try {
             await req.app.server.storage.delFile(file.node.file_id, file.node.node_id);
           } catch (err) {
-            req.app.logger.error('Error occured when deleting', fileData.id, 'from storage node', fileData.node.node_id);
-            req.app.logger.error(err);
+            req.app.server.logger.error('Error occured when deleting', file.id, 'from storage node', file.node.node_id);
+            req.app.server.logger.error(err);
             return;
           }
         });

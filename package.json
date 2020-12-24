@@ -10,6 +10,7 @@
     "eslint": "^7.16.0",
     "express-fileupload": "^1.2.0",
     "express-session": "^1.17.1",
+    "express-slow-down": "^1.4.0",
     "file-storage-node-handler": "github:million900o/file-storage-node-handler",
     "flakeid": "^1.0.0",
     "loggers": "github:million900o/loggers",

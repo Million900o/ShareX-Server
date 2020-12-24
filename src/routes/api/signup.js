@@ -1,9 +1,16 @@
 const { Router, json, urlencoded } = require('express');
 const router = Router();
 
+const slowDown = require("express-slow-down");
+
 const random = require('../../utils/random.js');
 const bcrypt = require('bcrypt');
 
+router.use(slowDown({
+  windowMs: 10 * 60 * 1000,
+  delayAfter: 3,
+  delayMs: 700,
+}));
 router.use(json());
 router.use(urlencoded({ extended: true }));
 
@@ -63,7 +70,7 @@ router.post('/api/signup', async (req, res) => {
             return;
           }
           req.session.userData = userData;
-          req.server.logger.log('Created new user', req.session.userData.id);
+          req.app.server.logger.log('Created new user', req.session.userData.id);
           res.redirect('/dashboard');
           return;
         });

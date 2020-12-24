@@ -1,10 +1,17 @@
 const { Router, json, urlencoded } = require('express');
 const router = Router();
 
+const slowDown = require("express-slow-down");
+
 const bcrypt = require('bcrypt');
 
 router.use(json());
 router.use(urlencoded({ extended: true }));
+router.use(slowDown({
+  windowMs: 10 * 60 * 1000,
+  delayAfter: 3,
+  delayMs: 800,
+}));
 
 router.post('/api/user/password', async (req, res) => {
   const currentPassword = req.body.pwdNow;
@@ -24,7 +31,7 @@ router.post('/api/user/password', async (req, res) => {
               return;
             }
             req.session.userData.authentication.password = hash;
-            req.server.logger.log(`Changed ${req.session.userData.id}\'s password`)
+            req.app.server.logger.log(`Changed ${req.session.userData.id}'s password`);
             res.redirect('/dashboard?page=password&success=Password successfully updated!');
             return;
           });

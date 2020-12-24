@@ -3,6 +3,7 @@ const router = Router();
 
 // Middleware
 const tokenAuthentication = require('../../middleware/tokenAuthentication.js');
+const slowDown = require("express-slow-down");
 // const fileUpload = require('express-fileupload');
 
 // Utils
@@ -10,6 +11,11 @@ const fs = require('fs');
 const path = require('path');
 const random = require('../../utils/random.js');
 
+router.use(slowDown({
+  windowMs: 5 * 60 * 1000,
+  delayAfter: 50,
+  delayMs: 400,
+}))
 // router.use(fileUpload({
 //   limits: {
 //     fileSize: Infinity,
@@ -69,7 +75,7 @@ router.post('/upload', tokenAuthentication, async (req, res) => {
           req.app.server.logger.error(err);
         }
         const userURL = (req.app.server.defaults.secure ? 'https://' : 'http://') + (req.session.userData.domain);
-        req.server.logger.log(`Saved ${fileID} from`, req.session.userData.id);
+        req.app.server.logger.log(`Saved ${fileID} from`, req.session.userData.id);
         res.json({
           succcess: true,
           url: userURL + '/files/' + fileID,
