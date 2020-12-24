@@ -21,7 +21,7 @@ router.post('/api/user/username', async (req, res) => {
           res.redirect('/dashboard?page=username&error=Internal Server Error');
           return;
         }
-        req.server.logger.log(`Changed ${req.session.userData.id}\'s username`)
+        req.server.logger.log(`Changed ${req.session.userData.id}'s username`);
         res.redirect('/dashboard?page=username&success=Username successfully updated to: ' + username);
       } else res.redirect('/dashboard?page=username&error=Incorrect password.');
       return;

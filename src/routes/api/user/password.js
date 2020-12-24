@@ -24,7 +24,7 @@ router.post('/api/user/password', async (req, res) => {
               return;
             }
             req.session.userData.authentication.password = hash;
-            req.server.logger.log(`Changed ${req.session.userData.id}\'s password`)
+            req.server.logger.log(`Changed ${req.session.userData.id}'s password`);
             res.redirect('/dashboard?page=password&success=Password successfully updated!');
             return;
           });

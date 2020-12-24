@@ -26,7 +26,7 @@ router.post('/api/user/files', async (req, res) => {
         try {
           await req.app.server.models.UserModel.updateOne({ id: req.session.userData.id }, { 'stats.uploads': 0 });
           req.session.userData.stats.uploads = 0;
-          req.server.logger.log(`Deleted ${req.session.userData.id}\'s files`)
+          req.server.logger.log(`Deleted ${req.session.userData.id}'s files`);
           res.redirect('/dashboard?success=Files queued for deletion.');
         } catch (err) {
           req.app.server.logger.error('Error occured when setting', req.session.userData.id, 'uploads to 0');
@@ -38,20 +38,20 @@ router.post('/api/user/files', async (req, res) => {
           try {
             await req.app.server.models.FileModel.deleteOne(file);
           } catch(err) {
-            req.app.logger.error('Error occured when deleting', file.id, 'from the DB');
-            req.app.logger.error(err);
+            req.app.server.logger.error('Error occured when deleting', file.id, 'from the DB');
+            req.app.server.logger.error(err);
           }
           try {
             await process.f.redis.del('files.' + file.id);
           } catch (err) {
-            req.app.logger.error('Error occured when removing', file.id, 'from cache');
-            req.app.logger.error(err);
+            req.app.server.logger.error('Error occured when removing', file.id, 'from cache');
+            req.app.server.logger.error(err);
           }
           try {
             await req.app.server.storage.delFile(file.node.file_id, file.node.node_id);
           } catch (err) {
-            req.app.logger.error('Error occured when deleting', fileData.id, 'from storage node', fileData.node.node_id);
-            req.app.logger.error(err);
+            req.app.server.logger.error('Error occured when deleting', file.id, 'from storage node', file.node.node_id);
+            req.app.server.logger.error(err);
           }
         });
       } else res.redirect('/dashboard?page=files&error=Incorrect password.');

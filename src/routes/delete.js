@@ -20,29 +20,29 @@ router.get('/delete/:key', passwordAuthentication, async (req, res) => {
       try {
         await req.app.server.models.FileModel.deleteOne(fileData);
       } catch(err) {
-        req.app.logger.error('Error occured when deleting', fileData.id, 'from the DB');
-        req.app.logger.error(err);
+        req.app.server.logger.error('Error occured when deleting', fileData.id, 'from the DB');
+        req.app.server.logger.error(err);
         res.render('pages/error.ejs', { message: 'Internal Server Error', error: 500, user: req.session.userData});
         return;
       }
       try {
         await process.f.redis.del('files.' + fileData.id);
       } catch (err) {
-        req.app.logger.error('Error occured when removing', fileData.id, 'from cache');
-        req.app.logger.error(err);
+        req.app.server.logger.error('Error occured when removing', fileData.id, 'from cache');
+        req.app.server.logger.error(err);
       }
       try {
         await req.app.server.storage.delFile(fileData.node.file_id, fileData.node.node_id);
       } catch (err) {
-        req.app.logger.error('Error occured when deleting', fileData.id, 'from storage node', fileData.node.node_id);
-        req.app.logger.error(err);
+        req.app.server.logger.error('Error occured when deleting', fileData.id, 'from storage node', fileData.node.node_id);
+        req.app.server.logger.error(err);
       }
       req.session.userData.stats.uploads--;
       try {
         await req.app.server.models.UserModel.updateOne({ id: req.session.id }, { 'stats.uploads': req.session.userData.stats.uploads });
       } catch (err) {
-        req.app.logger.error('Error occured when lowering', req.session.userData.id, 'uploads');
-        req.app.logger.error(err);
+        req.app.server.logger.error('Error occured when lowering', req.session.userData.id, 'uploads');
+        req.app.server.logger.error(err);
       }
       res.render('pages/error.ejs', { message: 'File Successfully deleted', error: 200, user: req.session.userData });
       return;

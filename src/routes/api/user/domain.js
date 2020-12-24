@@ -16,7 +16,7 @@ router.post('/api/user/domain', async (req, res) => {
         try {
           userCheck = await req.app.server.models.UserModel.findOne({ domain: domain });
         } catch (err) {
-          req.app.server.logger.error('Error occured when checking DB for', domain)
+          req.app.server.logger.error('Error occured when checking DB for', domain);
           req.app.server.logger.error(err);
           res.redirect('/dashboard?page=domain&error=Internal Server Error');
           return;
@@ -26,12 +26,12 @@ router.post('/api/user/domain', async (req, res) => {
             await req.app.server.models.UserModel.updateOne(req.session.userData, { domain: req.session.userData.domain });
             req.session.userData.domain = domain;
           } catch(err) {
-            req.app.server.logger.error('Error occured when updating', req.session.userData.id, 'domain')
+            req.app.server.logger.error('Error occured when updating', req.session.userData.id, 'domain');
             req.app.server.logger.error(err);
             res.redirect('/dashboard?page=domain&error=Internal Server Error');
             return;
           } 
-          req.server.logger.log(`Changed ${req.session.userData.id}\'s domain to:`, domain)
+          req.app.server.logger.log(`Changed ${req.session.userData.id}'s domain to:`, domain);
           res.redirect('/dashboard?page=domain&success=Domain successfully updated to: ' + domain + '.');
           return;
         } else res.redirect('/dashboard?page=domain&error=Domain is already taken.');

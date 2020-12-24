@@ -25,7 +25,7 @@ router.get('/api/admin/deletefiles/:id', passwordAuthentication, async (req, res
         try {
           await req.app.server.models.UserModel.updateOne({ id: userData.id }, { 'stats.uploads': 0 });
           userData.stats.uploads = 0;
-          req.app.server.logger.log(`Deleted ${userData.id}\'s Files`);
+          req.app.server.logger.log(`Deleted ${userData.id}'s Files`);
           res.redirect('/admin?success=' + userData.authentication.username + '\'s files were queued for deletion.');
         } catch (err) {
           req.app.server.logger.error('Error occured when setting', userData.id, 'uploads to 0');
@@ -37,20 +37,20 @@ router.get('/api/admin/deletefiles/:id', passwordAuthentication, async (req, res
           try {
             await req.app.server.models.FileModel.deleteOne(file);
           } catch(err) {
-            req.app.logger.error('Error occured when deleting', file.id, 'from the DB');
-            req.app.logger.error(err);
+            req.app.server.logger.error('Error occured when deleting', file.id, 'from the DB');
+            req.app.server.logger.error(err);
           }
           try {
             await process.f.redis.del('files.' + file.id);
           } catch (err) {
-            req.app.logger.error('Error occured when removing', file.id, 'from cache');
-            req.app.logger.error(err);
+            req.app.server.logger.error('Error occured when removing', file.id, 'from cache');
+            req.app.server.logger.error(err);
           }
           try {
             await req.app.server.storage.delFile(file.node.file_id, file.node.node_id);
           } catch (err) {
-            req.app.logger.error('Error occured when deleting', fileData.id, 'from storage node', fileData.node.node_id);
-            req.app.logger.error(err);
+            req.app.server.logger.error('Error occured when deleting', file.id, 'from storage node', file.node.node_id);
+            req.app.server.logger.error(err);
           }
         });
       } else res.redirect('/login?error=No user found with the id: ' + id + '.');
