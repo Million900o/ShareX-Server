@@ -22,6 +22,7 @@ const UserModel = require('./models/user.js');
 // Middlewares
 const domainHandling = require('./middleware/domainHandling.js');
 const IPParsing = require('./middleware/parseIP.js');
+const slowDown = require("express-slow-down");
 
 // Routes
 const FORRoute = require('./routes/404.js');
@@ -173,6 +174,12 @@ class ShareXServer {
         maxAge: 60 * 60 * 1000,
         secure: this.defaults.secure
       }
+    }));
+    app.use(slowDown({
+      windowMs: 1 * 60 * 1000,
+      delayAfter: 15,
+      delayMs: 500,
+      max: 4500
     }));
     this.app.use(cookieParser());
     this.app.server = this;

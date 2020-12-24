@@ -4,6 +4,7 @@ const router = Router();
 // Middleware
 const passwordAuthentication = require('../../middleware/passwordAuthentication.js');
 const fileUpload = require('express-fileupload');
+const slowDown = require("express-slow-down");
 
 // Utils
 const fs = require('fs');
@@ -17,6 +18,11 @@ router.use(fileUpload({
     fileSize: Infinity,
   },
   useTempFiles: true,
+}));
+router.use(slowDown({
+  windowMs: 15 * 60 * 1000,
+  delayAfter: 50,
+  delayMs: 400,
 }));
 
 router.post('/api/bupload', passwordAuthentication, async (req, res) => {

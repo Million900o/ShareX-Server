@@ -1,10 +1,17 @@
 const { Router, json, urlencoded } = require('express');
 const router = Router();
 
+const slowDown = require("express-slow-down");
+
 const bcrypt = require('bcrypt');
 
 router.use(json());
 router.use(urlencoded({ extended: true }));
+router.use(slowDown({
+  windowMs: 15 * 60 * 1000,
+  delayAfter: 5,
+  delayMs: 700,
+}));
 
 router.post('/api/user/username', async (req, res) => {
   const password = req.body.password;
