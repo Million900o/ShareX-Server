@@ -41,7 +41,6 @@ router.get('/files/:id', async (req, res) => {
     if (fileData) {
       try {
         await req.app.server.models.FileModel.updateOne(fileData, { 'stats.views': fileData.stats.views + 1 });
-        res.contentType(fileData.info.mimeType)
         req.app.server.logger.debug('Updated', fileData.id, 'views');
       } catch (err) {
         req.app.server.logger.error('Error occured when updating', fileID, 'views');
@@ -56,6 +55,7 @@ router.get('/files/:id', async (req, res) => {
         req.app.server.logger.error(err);
       }
       if (redisFile) {
+        res.setHeader('Content-Type', fileData.info.mimeType)
         res.end(Buffer.from(JSON.parse(redisFile)), 'binary');
         req.app.server.logger.log(`Sent file ${fileID} to`, req.parsedIP);
         return;
@@ -79,6 +79,7 @@ router.get('/files/:id', async (req, res) => {
           req.app.server.logger.error(err);
         }
         req.app.server.logger.log(`Sent file ${fileID} to`, req.parsedIP);
+        res.setHeader('Content-Type', fileData.info.mimeType)
         res.end(file, 'binary');
         return;
       }
