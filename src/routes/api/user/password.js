@@ -24,6 +24,7 @@ router.post('/api/user/password', async (req, res) => {
           bcrypt.hash(newPassword, req.app.server.authentication.passwords.saltRounds).then(async hash => {
             try {
               await req.app.server.models.UserModel.updateOne(req.session.userData, { 'authentication.password': hash });
+              req.app.server.logger.debug('Updated user', req.session.userData.id, 'password');
             } catch (err) {
               req.app.server.logger.error('Error occured when changing', req.session.userData.id, 'password');
               req.app.server.logger.error(err);

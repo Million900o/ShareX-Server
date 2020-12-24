@@ -8,6 +8,7 @@ router.get('/admin', passwordAuthentication, async (req, res, next) => {
     let users;
     try {
       users = await req.app.server.models.UserModel.find();
+      req.app.server.logger.debug('Retrieved all users from the DB');
     } catch (err) {
       req.app.server.logger.error('Error occured when retreiving all users from DB');
       req.app.server.logger.error(err);

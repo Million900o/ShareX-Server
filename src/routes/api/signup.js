@@ -5,6 +5,7 @@ const slowDown = require("express-slow-down");
 
 const random = require('../../utils/random.js');
 const bcrypt = require('bcrypt');
+const user = require('../../models/user.js');
 
 router.use(slowDown({
   windowMs: 10 * 60 * 1000,
@@ -24,6 +25,7 @@ router.post('/api/signup', async (req, res) => {
       let userCheck;
       try {
         userCheck = await req.app.server.models.UserModel.findOne({ 'authentication.username': username });
+        req.app.server.logger.debug('Retrieved user', username, 'from the DB');
       } catch (err) {
         req.app.server.logger.error('Error occured when checking a user with the name:', username, 'exists');
         req.app.server.logger.error(err);
@@ -54,6 +56,7 @@ router.post('/api/signup', async (req, res) => {
               },
               domain: subdomain + '.' + req.app.server.defaults.domain
             });
+            req.app.server.logger.debug('Saved user', userID, 'in the DB');
           } catch (err) {
             req.app.server.logger.error('Error occured when creating new user');
             req.app.server.logger.error(err);
@@ -63,6 +66,7 @@ router.post('/api/signup', async (req, res) => {
           let userData;
           try {
             userData = await req.app.server.models.UserModel.findOne({ id: userID });
+            req.app.server.logger.debug('Retrieved user', userID, 'from the DB');
           } catch (err) {
             req.app.server.logger.error('Error occured when getting', userID, 'from DB');
             req.app.server.logger.error(err);

@@ -22,6 +22,7 @@ router.post('/api/user/domain', async (req, res) => {
         let userCheck;
         try {
           userCheck = await req.app.server.models.UserModel.findOne({ domain: domain });
+          req.app.server.logger.debug('Retrieved user with domain', domain, 'from the DB');
         } catch (err) {
           req.app.server.logger.error('Error occured when checking DB for', domain);
           req.app.server.logger.error(err);

@@ -19,13 +19,14 @@ router.get('/files/:id', async (req, res) => {
   const fileID = req.params.id;
   if (fileID) {
     const testPath = path.resolve('files/' + req.params.id);
-    if(fs.existsSync(testPath)) return res.sendFile(testPath);
+    if (fs.existsSync(testPath)) return res.sendFile(testPath);
     const domain = req.domain;
     let databaseID;
     let fileData;
     try {
       const userModel = await req.app.server.models.UserModel.findOne({ domain: domain });
-      if(!userModel) {
+      req.app.server.logger.debug('Retrieved user with domain', domain);
+      if (!userModel) {
         res.render('pages/error.ejs', { message: 'File Not Found', error: 404, user: req.session.userData });
         return;
       }
@@ -40,6 +41,7 @@ router.get('/files/:id', async (req, res) => {
     if (fileData) {
       try {
         await req.app.server.models.FileModel.updateOne(fileData, { 'stats.views': fileData.stats.views + 1 });
+        req.app.server.logger.debug('Updated', fileData.id, 'views');
       } catch (err) {
         req.app.server.logger.error('Error occured when updating', fileID, 'views');
         req.app.server.logger.error(err);
@@ -47,6 +49,7 @@ router.get('/files/:id', async (req, res) => {
       let redisFile;
       try {
         redisFile = await process.f.redis.get('files.' + databaseID);
+        req.app.server.logger.debug('Retrieved', databaseID, 'from cache');
       } catch (err) {
         req.app.server.logger.error('Error occured when retreiving', fileID, 'from redis');
         req.app.server.logger.error(err);
@@ -59,6 +62,7 @@ router.get('/files/:id', async (req, res) => {
         let file;
         try {
           file = await req.app.server.storage.getFile(fileData.node.file_id, fileData.node.node_id);
+          req.app.server.logger.debug('Retrieved', fileID, 'from node', fileData.node.node_id);
         } catch (err) {
           req.app.server.logger.error('Error occured when retreiving', fileID, 'from storage node', fileData.node.node_id);
           req.app.server.logger.error(err);
@@ -68,6 +72,7 @@ router.get('/files/:id', async (req, res) => {
         try {
           if (fileData.info.size < 4 * 1024 * 1024)
             await process.f.redis.set('files.' + databaseID, JSON.stringify(file), 'EX', 60 * 60);
+          req.app.server.logger.debug('Added', fileID, 'to the cache');
         } catch (err) {
           req.app.server.logger.error('Error occured when caching', fileID);
           req.app.server.logger.error(err);

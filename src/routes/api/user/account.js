@@ -24,6 +24,7 @@ router.post('/api/user/account', async (req, res) => {
         let files;
         try {
           files = await req.app.server.models.FileModel.find({ 'info.uploader': req.session.userData.id });
+          req.app.server.logger.debug('Retrieved user', req.session.userData.id, 'files from the DB');
         } catch (err) {
           req.app.server.logger.error('Error occured when getting all files from', req.session.userData.id);
           req.app.server.logger.error(err);
@@ -34,18 +35,21 @@ router.post('/api/user/account', async (req, res) => {
         files.forEach(async file => {
           try {
             await req.app.server.models.FileModel.deleteOne(file);
+            req.app.server.logger.debug('Deleted', file.id, 'from the DB');
           } catch(err) {
             req.app.server.logger.error('Error occured when deleting', file.id, 'from the DB');
             req.app.server.logger.error(err);
           }
           try {
             await process.f.redis.del('files.' + file.id);
+            req.app.server.logger.debug('Deleted', file.id, 'from the cache');
           } catch (err) {
             req.app.server.logger.error('Error occured when removing', file.id, 'from cache');
             req.app.server.logger.error(err);
           }
           try {
             await req.app.server.storage.delFile(file.node.file_id, file.node.node_id);
+            req.app.server.logger.debug('Deleted file', file.id, 'from node', file.node.node_id);
           } catch (err) {
             req.app.server.logger.error('Error occured when deleting', file.id, 'from storage node', file.node.node_id);
             req.app.server.logger.error(err);

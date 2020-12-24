@@ -16,6 +16,7 @@ router.get('/api/admin/delete/:id', passwordAuthentication, async (req, res) => 
         let files;
         try {
           files = await req.app.server.models.FileModel.find({ 'info.uploader': userData.id });
+          req.app.server.logger.debug('Retrived user', userData.id, 'file');
         } catch (err) {
           req.app.server.logger.error('Error occured when getting all files from', userData.id);
           req.app.server.logger.error(err);
@@ -35,6 +36,7 @@ router.get('/api/admin/delete/:id', passwordAuthentication, async (req, res) => 
         files.forEach(async file => {
           try {
             await req.app.server.models.FileModel.deleteOne(file);
+            req.app.server.logger.debug('Deleted file', file.id, 'from the DB');
           } catch(err) {
             req.app.server.logger.error('Error occured when deleting', file.id, 'from the DB');
             req.app.server.logger.error(err);
@@ -42,6 +44,7 @@ router.get('/api/admin/delete/:id', passwordAuthentication, async (req, res) => 
           }
           try {
             await process.f.redis.del('files.' + file.id);
+            req.app.server.logger.debug('Deleted file', file.id, 'from the cache');
           } catch (err) {
             req.app.server.logger.error('Error occured when removing', file.id, 'from cache');
             req.app.server.logger.error(err);
@@ -49,6 +52,7 @@ router.get('/api/admin/delete/:id', passwordAuthentication, async (req, res) => 
           }
           try {
             await req.app.server.storage.delFile(file.node.file_id, file.node.node_id);
+            req.app.server.logger.debug('Deleted file', file.id, 'from storage node', file.node.node_id);
           } catch (err) {
             req.app.server.logger.error('Error occured when deleting', file.id, 'from storage node', file.node.node_id);
             req.app.server.logger.error(err);

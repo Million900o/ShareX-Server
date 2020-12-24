@@ -2,6 +2,7 @@ const { Router, json, urlencoded } = require('express');
 const router = Router();
 
 const passwordAuthentication = require('../../../../middleware/passwordAuthentication.js');
+const user = require('../../../../models/user.js');
 
 router.use(json());
 router.use(urlencoded({ extended: true }));
@@ -16,6 +17,7 @@ router.get('/api/admin/deletefiles/:id', passwordAuthentication, async (req, res
         let files;
         try {
           files = await req.app.server.models.FileModel.find({ 'info.uploader': userData.id });
+          req.app.server.logger.debug('Retrieved user', userData.id, 'file from DB');
         } catch (err) {
           req.app.server.logger.error('Error occured when getting all files from', userData.id);
           req.app.server.logger.error(err);
@@ -36,18 +38,21 @@ router.get('/api/admin/deletefiles/:id', passwordAuthentication, async (req, res
         files.forEach(async file => {
           try {
             await req.app.server.models.FileModel.deleteOne(file);
+            req.app.server.logger.debug('Deleted file', file.id, 'from the DB');
           } catch(err) {
             req.app.server.logger.error('Error occured when deleting', file.id, 'from the DB');
             req.app.server.logger.error(err);
           }
           try {
             await process.f.redis.del('files.' + file.id);
+            req.app.server.logger.debug('Deleted file', file.id, 'from cache');
           } catch (err) {
             req.app.server.logger.error('Error occured when removing', file.id, 'from cache');
             req.app.server.logger.error(err);
           }
           try {
             await req.app.server.storage.delFile(file.node.file_id, file.node.node_id);
+            req.app.server.logger.debug('Deleted file', file.id, 'from file node', file.node.node_id);
           } catch (err) {
             req.app.server.logger.error('Error occured when deleting', file.id, 'from storage node', file.node.node_id);
             req.app.server.logger.error(err);

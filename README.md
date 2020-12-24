@@ -1,9 +1,9 @@
 # ShareX-Server
 
 ## TODO
-- caching for db
+- caching for db 
 - comments
 - error handling (DONE)
 - ratelimits (DONE)
-- debug logging (every try/catch block)
+- debug logging (every try/catch block) (DONE)
 - deleteMany endpoint for storage

@@ -65,6 +65,7 @@ router.post('/api/bupload', passwordAuthentication, async (req, res) => {
               file_id: savedFile.response.id,
             },
           });
+          req.app.server.logger.debug('Saved file', databaseID, 'in the DB');
         } catch (err) {
           res.redirect('/upload?error=Internal Server Error');
           req.app.server.storage.delFile(savedFile.response.id, savedFile.node.id);
@@ -72,6 +73,7 @@ router.post('/api/bupload', passwordAuthentication, async (req, res) => {
         }
         try {
           await req.app.server.models.UserModel.updateOne(req.session.userData, { 'stats.upload_size': neededStorage, 'stats.uploads': req.session.userData.stats.uploads + 1 });
+          req.app.server.logger.debug('Updated user', req.session.userData.id, 'uploads and upload size');
         } catch (err) {
           req.app.server.logger.error('Error occured when updating', req.session.userData.id, 'DB document');
           req.app.server.logger.error(err);
@@ -82,6 +84,7 @@ router.post('/api/bupload', passwordAuthentication, async (req, res) => {
         try {
           if (req.files.file.size < 4 * 1024 * 1024)
             await process.f.redis.set('files.' + databaseID, JSON.stringify(fileBuffer), 'EX', 60 * 60);
+          req.app.server.logger.debug('Added file', databaseID, 'to the cache');
         } catch (err) {
           req.app.server.logger.error('Error occured when caching', fileID);
           req.app.server.logger.error(err);

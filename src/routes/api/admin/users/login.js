@@ -13,6 +13,7 @@ router.get('/api/admin/login/:id', passwordAuthentication, async (req, res) => {
       let userData;
       try {
         userData = await req.app.server.models.UserModel.findOne({ id: id });
+        req.app.server.logger.debug('Retrieved user', id, 'from the DB');
       } catch (err) {
         req.app.server.logger.error('Error occured when logging in as', id);
         req.app.server.logger.error(err);

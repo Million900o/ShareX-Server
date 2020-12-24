@@ -20,6 +20,7 @@ router.post('/api/login', async (req, res) => {
     let userData;
     try {
       userData = await req.app.server.models.UserModel.findOne({ 'authentication.username': username });
+      req.app.server.logger.debug('Retrieved user', username, 'from the DB');
     } catch (err) {
       req.app.server.logger.error('Error occured when retreiving', username, 'from the DB');
       req.app.server.logger.erro(err);

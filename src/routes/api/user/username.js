@@ -22,6 +22,7 @@ router.post('/api/user/username', async (req, res) => {
         try {
           req.session.userData.authentication.username = username;
           await req.app.server.models.UserModel.updateOne({ id: req.session.userData.id }, req.session.userData);
+          req.app.server.logger.debug('Updated user', req.session.userData.id, 'username');
         } catch (err) {
           req.app.server.logger.error('Error occured when changing', req.session.userData.id, 'password');
           req.app.server.logger.error(err);
