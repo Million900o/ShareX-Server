@@ -55,7 +55,7 @@ router.get('/files/:id', async (req, res) => {
         req.app.server.logger.error(err);
       }
       if (redisFile) {
-        res.setHeader('Content-Type', fileData.info.mimeType)
+        res.setHeader('Content-Type', fileData.info.mimeType || 'image/png')
         res.end(Buffer.from(JSON.parse(redisFile)), 'binary');
         req.app.server.logger.log(`Sent file ${fileID} to`, req.parsedIP);
         return;
@@ -79,7 +79,7 @@ router.get('/files/:id', async (req, res) => {
           req.app.server.logger.error(err);
         }
         req.app.server.logger.log(`Sent file ${fileID} to`, req.parsedIP);
-        res.setHeader('Content-Type', fileData.info.mimeType)
+        res.setHeader('Content-Type', fileData.info.mimeType || 'image/png')
         res.end(file, 'binary');
         return;
       }

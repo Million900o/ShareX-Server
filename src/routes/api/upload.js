@@ -52,7 +52,7 @@ router.post('/upload', tokenAuthentication, async (req, res) => {
               original_name: req.files.file.name,
               uploader: req.session.userData.id,
               upload_date: new Date(),
-              mimiType: req.files.file.mimetype,
+              mimeType: req.files.file.mimeType,
               size: req.files.file.size
             },
             stats: {
