@@ -138,8 +138,8 @@ class ShareXServer {
     this.logger.debug('Connecting to MongoDB');
     this.mongodb = mongoose.connect(this.mongoConfig.connectURI, this.mongoConfig.connectOptions);
     this.logger.log('Connected to MongoDB at:', this.mongoConfig.connectURI);
-    const userCheck = await this.models.UserModel.findOne({ id: 'default' });
-    if(!userCheck) await this.models.UserModel.create({
+    const userCheck = await this.models.UserModel.find();
+    if(!userCheck.length) await this.models.UserModel.create({
       id: 'default',
       authentication: {
         token: random.generateRandomString(this.authentication.tokens.length),
