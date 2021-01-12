@@ -2,7 +2,7 @@
 
 ## TODO
 - caching for db 
-- comments
+- comments (NO)
 - error handling (DONE)
 - ratelimits (DONE)
 - debug logging (every try/catch block) (DONE)
