@@ -12,6 +12,7 @@
     "express-session": "^1.17.1",
     "express-slow-down": "^1.4.0",
     "file-storage-node-handler": "github:million900o/file-storage-node-handler",
+    "file-type": "^16.2.0",
     "flakeid": "^1.0.0",
     "loggers": "github:million900o/loggers",
     "mongoose": "^5.11.8",

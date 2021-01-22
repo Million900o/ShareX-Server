@@ -3,6 +3,7 @@ const router = Router();
 
 const fs = require('fs');
 const path = require('path');
+const fileType = require('file-type');
 
 const passwordAuthentication = require('../middleware/passwordAuthentication.js');
 
@@ -54,9 +55,18 @@ router.get('/files/:id', async (req, res) => {
         req.app.server.logger.error('Error occured when retreiving', fileID, 'from redis');
         req.app.server.logger.error(err);
       }
+      const buffer = Buffer.from(JSON.parse(redisFile));
       if (redisFile) {
-        res.setHeader('Content-Type', fileData.info.mimeType || 'image/png')
-        res.end(Buffer.from(JSON.parse(redisFile)), 'binary');
+        let mimeType;
+        try {
+          mimeType = (await fileType.fromBuffer(buffer)).mime;
+        } catch (err) {
+          req.app.server.logger.error('Error occured when caching', fileID);
+          req.app.server.logger.error(err);
+          return;
+        }
+        res.setHeader('Content-Type', mimeType);
+        res.end(buffer, 'binary');
         req.app.server.logger.log(`Sent file ${fileID} to`, req.parsedIP);
         return;
       } else {
@@ -77,9 +87,18 @@ router.get('/files/:id', async (req, res) => {
         } catch (err) {
           req.app.server.logger.error('Error occured when caching', fileID);
           req.app.server.logger.error(err);
+          return;
+        }
+        let mimeType;
+        try {
+          mimeType = (await fileType.fromBuffer(file)).mime;
+        } catch (err) {
+          req.app.server.logger.error('Error occured when caching', fileID);
+          req.app.server.logger.error(err);
+          return;
         }
         req.app.server.logger.log(`Sent file ${fileID} to`, req.parsedIP);
-        res.setHeader('Content-Type', fileData.info.mimeType || 'image/png')
+        res.setHeader('Content-Type', mimeType);
         res.end(file, 'binary');
         return;
       }
