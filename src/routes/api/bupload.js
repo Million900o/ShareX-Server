@@ -54,7 +54,7 @@ router.post('/api/bupload', passwordAuthentication, async (req, res) => {
               original_name: req.files.file.name,
               uploader: req.session.userData.id,
               upload_date: new Date(),
-              mimeType: req.files.file.mimeType,
+              mimeType: req.files.file.mimetype,
               size: req.files.file.size
             },
             stats: {
