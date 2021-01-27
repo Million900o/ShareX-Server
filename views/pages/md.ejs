@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="shortcut icon" href="/assets/favicon.png" />
+  <title><%- file.info.original_name %> - ShareX-Server</title>
+
+  <!-- assets I host -->
+  <link href="/css/md.css" rel="stylesheet">
+
+  <!-- highlightjs -->
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/highlightjs-line-numbers.js@2.8.0/dist/highlightjs-line-numbers.min.js"></script>
+
+  <!-- meta tags -->
+  <meta content="<%- file.info.original_name %> - ShareX-Server" property="og:title">
+  <!-- meta tags needed -->
+</head>
+
+<body style="display: none;">
+  <pre class="hljs"><code><%- text %></code></pre>
+  <script>
+    (async () => {
+      await hljs.initHighlightingOnLoad();
+      await hljs.initLineNumbersOnLoad();
+      document.getElementsByTagName("body")[0].style.display = "block";
+    })()
+  </script>
+</body>

@@ -65,8 +65,12 @@ router.get('/files/:id', async (req, res) => {
           req.app.server.logger.error(err);
           return;
         }
-        res.setHeader('Content-Type', mimeType);
-        res.end(buffer, 'binary');
+        if (mimeType === 'text/plain') {
+          res.render('pages/md.ejs', { file: fileData, text: buffer.toString() });
+        } else {
+          res.setHeader('Content-Type', mimeType);
+          res.end(buffer, 'binary');
+        }
         req.app.server.logger.log(`Sent file ${fileID} to`, req.parsedIP);
         return;
       } else {
@@ -97,9 +101,13 @@ router.get('/files/:id', async (req, res) => {
           req.app.server.logger.error(err);
           return;
         }
+        if (mimeType === 'text/plain') {
+          res.render('pages/md.ejs', { file: fileData, text: file.toString() });
+        } else {
+          res.setHeader('Content-Type', mimeType);
+          res.end(buffer, 'binary');
+        }
         req.app.server.logger.log(`Sent file ${fileID} to`, req.parsedIP);
-        res.setHeader('Content-Type', mimeType);
-        res.end(file, 'binary');
         return;
       }
     } else res.render('pages/error.ejs', { message: 'File Not Found', error: 404, user: req.session.userData });
