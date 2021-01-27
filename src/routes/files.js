@@ -55,11 +55,11 @@ router.get('/files/:id', async (req, res) => {
         req.app.server.logger.error('Error occured when retreiving', fileID, 'from redis');
         req.app.server.logger.error(err);
       }
-      const buffer = Buffer.from(JSON.parse(redisFile));
       if (redisFile) {
         let mimeType;
+        const buffer = Buffer.from(JSON.parse(redisFile));
         try {
-          mimeType = (await fileType.fromBuffer(buffer)).mime;
+          mimeType = (await fileType.fromBuffer(buffer))?.mime || 'text/plain';
         } catch (err) {
           req.app.server.logger.error('Error occured when caching', fileID);
           req.app.server.logger.error(err);
@@ -91,7 +91,7 @@ router.get('/files/:id', async (req, res) => {
         }
         let mimeType;
         try {
-          mimeType = (await fileType.fromBuffer(file)).mime;
+          mimeType = (await fileType.fromBuffer(file))?.mime || 'text/plain';
         } catch (err) {
           req.app.server.logger.error('Error occured when caching', fileID);
           req.app.server.logger.error(err);
