@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Dashboard - ShareX-Server</title>
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <link rel="shortcut icon" href="/favicon.ico" />
+
+  <!-- meta tags -->
+  <meta content="Admin Panel - ShareX-Server" property="og:title">
+  <!-- meta tags needed -->
+</head>
+
+<body>
+  <%- include('../parts/navbar.ejs') %>
+
+  <div class="title">
+    <h2>Dashboard</h2>
+  </div>
+
+  <div class="userInfo">
+    <div class="userDiv">
+      <div class="username">
+        <a>Stats</a><br>
+      </div>
+      <div class="user">
+        <a>Users: <%= users.length %></a><br>
+      </div>
+    </div>
+  </div><br>
+
+  <% if (page === "users") {%>
+    <%- include('../parts/admin/users.ejs') %>
+  <% } %>
+
+  <div class="userInfo">
+
+    <div class="pages">
+      <a class="nextPage" href="?page=users">Manage Users</a>
+    </div><br>
+  </div>
+  <% if (!page) { %>
+  <% if (error) { %>
+  <div class="errorDiv">
+    <a class="error"><%= error %></a>
+  </div>
+  <% } else if (success) { %>
+  <div class="successDiv">
+    <a class="success"><%= success %></a>
+  </div>
+  <% } %>
+  <% } %>
+
+</body>
+
+</html>

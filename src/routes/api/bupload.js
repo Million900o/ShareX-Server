@@ -1,29 +1,31 @@
-const { Router } = require('express');
+const { Router, json, urlencoded } = require('express');
 const router = Router();
 
 // Middleware
-const tokenAuthentication = require('../../middleware/tokenAuthentication.js');
+const passwordAuthentication = require('../../middleware/passwordAuthentication.js');
+const fileUpload = require('express-fileupload');
 const slowDown = require("express-slow-down");
-// const fileUpload = require('express-fileupload');
 
 // Utils
 const fs = require('fs');
 const path = require('path');
 const random = require('../../utils/random.js');
 
+router.use(json());
+router.use(urlencoded({ extended: true }));
+router.use(fileUpload({
+  limits: {
+    fileSize: Infinity,
+  },
+  useTempFiles: true,
+}));
 router.use(slowDown({
-  windowMs: 5 * 60 * 1000,
+  windowMs: 15 * 60 * 1000,
   delayAfter: 50,
   delayMs: 400,
-}))
-// router.use(fileUpload({
-//   limits: {
-//     fileSize: Infinity,
-//   },
-//   useTempFiles: true,
-// }));
+}));
 
-router.post('/upload', tokenAuthentication, async (req, res) => {
+router.post('/api/bupload', passwordAuthentication, async (req, res) => {
   if (req.files && req.files.file) {
     const filePath = path.resolve(req.files.file.tempFilePath);
     const neededStorage = req.session.userData.stats.upload_size + req.files.file.size;
@@ -36,7 +38,7 @@ router.post('/upload', tokenAuthentication, async (req, res) => {
       } catch (err) {
         req.app.server.logger.warn(err);
         fs.unlinkSync(filePath);
-        res.status(503).json({ succcess: false, message: 'Internal Server Error' });
+        res.redirect('/upload?error=Internal Server Error when saving the file.');
         return;
       }
       if (savedFile && savedFile.response.success) {
@@ -65,7 +67,7 @@ router.post('/upload', tokenAuthentication, async (req, res) => {
           });
           req.app.server.logger.debug('Saved file', databaseID, 'in the DB');
         } catch (err) {
-          res.status(503).json({ succcess: false, message: 'Internal Server Error' });
+          res.redirect('/upload?error=Internal Server Error');
           req.app.server.storage.delFile(savedFile.response.id, savedFile.node.id);
           return;
         }
@@ -78,11 +80,7 @@ router.post('/upload', tokenAuthentication, async (req, res) => {
         }
         const userURL = (req.app.server.defaults.secure ? 'https://' : 'http://') + (req.session.userData.domain);
         req.app.server.logger.log(`Saved ${fileID} from`, req.session.userData.id);
-        res.json({
-          succcess: true,
-          url: userURL + '/files/' + fileID,
-          deletion_url: userURL + '/delete/' + deletionKey
-        });
+        res.redirect('/upload?success=' + userURL + '/files/' + fileID);
         try {
           if (req.files.file.size < 4 * 1024 * 1024)
             await process.f.redis.set('files.' + databaseID, JSON.stringify(fileBuffer), 'EX', 60 * 60);
@@ -94,16 +92,16 @@ router.post('/upload', tokenAuthentication, async (req, res) => {
         fs.unlinkSync(filePath);
         return;
       } else {
-        res.status(503).json({ succcess: false, message: 'Internal Server Error' });
+        res.redirect('/upload?error=Internal Server Error.');
         fs.unlinkSync(filePath);
         return;
       }
     } else {
-      res.status(503).json({ succcess: false, message: 'Not enough storage. Need: ' + neededStorage + 'kb Have: ' + maxStorage + 'kb' });
+      res.redirect('/upload?error=Not enough storage. Need: ' + neededStorage + 'kb Have: ' + maxStorage + 'kb');
       fs.unlinkSync(filePath);
       return;
     }
-  } else res.status(400).json({ succcess: false, message: 'No file provided' });
+  } else res.redirect('/upload?error=You must upload a file.');
   return;
 });
 

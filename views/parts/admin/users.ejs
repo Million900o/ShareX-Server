@@ -1,0 +1,25 @@
+<% let randomString = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(36) %>
+<div class="popup accForm">
+  <div class="popupBG" style="min-height: 100px; max-height: 60%; overflow: auto;">
+    <div class="dashboardSpace"></div>
+    <h1>Manage Users</h1>
+    <div style="min-height: 100px; height: fit-content;">
+      <% users.forEach(user => { %> 
+        <div style="background-color: #464444; border-radius: 5px; max-width: 400px; margin: auto; height: 90px;">
+          <h1><%= user.authentication.username %></h1>
+              <a class="formSubmit" href="/api/admin/deletefiles/<%= user.id %>">Delete Files</a>
+              <a class="formSubmit" href="/api/admin/delete/<%= user.id %>">Delete Account</a>
+              <a class="formSubmit" href="/api/admin/login/<%= user.id %>">Login as<a></a>
+        </div><br>
+      <% }) %> 
+      <% if (error) { %>
+        <a class="error"><%= error %></a>
+      <% } else if (success) { %>
+        <a class="success"><%= success %></a>
+      <% } %>
+    </div>
+  </div>
+  <div class="dashboardOption">
+    <a class="dashboardBack" href="/admin">Take Me back!</a>
+  </div>
+</div>

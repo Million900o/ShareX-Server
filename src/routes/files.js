@@ -1,107 +1,110 @@
-/*
-    The router for getting a file
-*/
 const { Router } = require('express');
-const { resolve } = require('path');
-const { existsSync, readFileSync, unlinkSync, statSync } = require('fs');
-
-const { delFile, getFile, addFileView, getAllFiles, addUserUploadSize, addUserUpload } = require('../mongo');
-const { fileGET, fileDELETE, filesALLGET } = require('../util/logger');
-const { browserAuth } = require('../middleware/authentication.js');
-const fileExtArray = require('../util/highlightjs.json')
-
-require('express-zip');
-
 const router = Router();
 
-const rateLimit = require('express-rate-limit');
-const limiter = rateLimit({
-  windowMs: 4 * 60 * 1000,
-  max: 200,
-});
-router.use(limiter);
+const fs = require('fs');
+const path = require('path');
+const fileType = require('file-type');
 
-function addToArray(obj, arr) {
-  if (!arr.some(e => e.name === obj.name)) return arr.push(obj);
-  else {
-    let objNameArray = obj.name.split('.');
-    let fileName = objNameArray.slice(0, objNameArray.length - 1).join(' ');
-    if (fileName.includes('_')) {
-      let num = parseInt(fileName.split('_')[fileName.split('_').length - 1]);
-      fileName = `${fileName.split('_').slice(0, fileName.split('_').length - 1)}_${num + 1}`;
-    } else fileName = `${fileName}_1`;
-    let fileExt = objNameArray[objNameArray.length - 1];
-    obj.name = `${fileName}.${fileExt}`;
-    return addToArray(obj, arr);
-  }
-}
+const passwordAuthentication = require('../middleware/passwordAuthentication.js');
 
-router.get('/download', browserAuth, async (req, res) => {
-  let files = await getAllFiles(req.userData.id);
-  let fileArray = [];
-  files.forEach(e => {
-    let obj = { path: resolve(`${__dirname}/../../${e.path}`), name: e.originalName };
-    addToArray(obj, fileArray);
-  });
-  filesALLGET(req.userData.key, req.ip);
-  return res.zip(fileArray, `files-${new Date().toLocaleDateString().replace(/\//g, '-')}.zip`);
+router.get('/files/all', passwordAuthentication, async (req, res) => {
+  const page = req.query.p ? req.query.p : 0;
+  const files = (await req.app.server.models.FileModel.find({ 'info.uploader': req.session.userData.id })).sort(
+    (a, b) => new Date(a.UploadedAt) - new Date(b.UploadedAt),
+  ).reverse().slice(page * 100, 100 + (page * 100));
+  res.render('pages/files.ejs', { user: req.session.userData, files: files, page: page, secure: req.app.server.defaults.secure });
+  return;
 });
 
-router.get('/:name', async (req, res) => {
-  let fileName = req.params.name;
-  if (!fileName) return res.status(200).render('pages/404.ejs', { user: null, error: 'File Not Found', success: null });
-
-  let fileData;
-  if (req.app.cache.files[fileName]) {
-    fileData = req.app.cache.files[fileName];
-  } else {
-    fileData = await getFile(fileName);
-    if (!fileData) return res.status(200).render('pages/404.ejs', { user: null, error: 'File Not Found', success: null });
-    req.app.cache.files[fileName] = fileData;
-  }
-
-  await addFileView(fileName);
-
-  let filePath = resolve(`${__dirname}/../../${fileData.path}`);
-  if (!existsSync(filePath)) return res.status(200).render('pages/404.ejs', { user: null, error: 'File Not Found', success: null });
-
-  fileGET(fileName, req.ip);
-
-  if (!fileExtArray.includes(fileName.split('.')[fileName.split('.').length - 1])) return res.sendFile(filePath);
-
-  let data = readFileSync(filePath, 'utf8');
-
-  return res.render('pages/md.ejs', {
-    data: data, file: fileData, user: null,
-  });
-});
-
-router.get('/delete/:name', browserAuth, async (req, res) => {
-  let fileName = req.params.name;
-  if (!fileName) return res.status(404).redirect('/?error=File does not exist.');
-
-  let fileData = await getFile(fileName);
-  if (fileData === null) return res.status(404).redirect('/?error=File does not exist.');
-
-  if (fileData.uploader !== req.userData.id && !req.userData.owner)
-    return res.status(401).redirect('/?error=You do not have permissions to do this.');
-
-  if (req.app.cache.files[e.name]) {
-    delete req.app.cache.files[e.name]
-  }
-
-  let filePath = resolve(`${__dirname}/../../${fileData.path}`);
-  if (!existsSync(filePath))
-    return res.status(401).redirect('/?error=File does not exist.');
-
-  await addUserUploadSize(req.userData.key, -(statSync(filePath).size / 1024));
-  await addUserUpload(req.userData.key, -1);
-  await delFile(fileName);
-  unlinkSync(filePath);
-
-  fileDELETE(fileName, req.userData.key, req.ip);
-
-  return res.status(200).redirect('/?success=Successfully deleted the file.');
+router.get('/files/:id', async (req, res) => {
+  const fileID = req.params.id;
+  if (fileID) {
+    const testPath = path.resolve('files/' + req.params.id);
+    if (fs.existsSync(testPath)) return res.sendFile(testPath);
+    const domain = req.domain;
+    let databaseID;
+    let fileData;
+    try {
+      const userModel = await req.app.server.models.UserModel.findOne({ domain: domain });
+      req.app.server.logger.debug('Retrieved user with domain', domain);
+      if (!userModel) {
+        res.render('pages/error.ejs', { message: 'File Not Found', error: 404, user: req.session.userData });
+        return;
+      }
+      databaseID = userModel.id + ':' + fileID;
+      fileData = await req.app.server.models.FileModel.findOne({ id: databaseID });
+    } catch (err) {
+      req.app.server.logger.error('Error occured when getting', fileID, 'uploader');
+      req.app.server.logger.error(err);
+      res.render('pages/error.ejs', { message: 'Internal Server Error', error: 500, user: req.session.userData });
+      return;
+    }
+    if (fileData) {
+      try {
+        await req.app.server.models.FileModel.updateOne(fileData, { 'stats.views': fileData.stats.views + 1 });
+        req.app.server.logger.debug('Updated', fileData.id, 'views');
+      } catch (err) {
+        req.app.server.logger.error('Error occured when updating', fileID, 'views');
+        req.app.server.logger.error(err);
+      }
+      let redisFile;
+      try {
+        redisFile = await process.f.redis.get('files.' + databaseID);
+        req.app.server.logger.debug('Retrieved', databaseID, 'from cache');
+      } catch (err) {
+        req.app.server.logger.error('Error occured when retreiving', fileID, 'from redis');
+        req.app.server.logger.error(err);
+      }
+      const buffer = Buffer.from(JSON.parse(redisFile));
+      if (redisFile) {
+        let mimeType;
+        try {
+          mimeType = (await fileType.fromBuffer(buffer)).mime;
+        } catch (err) {
+          req.app.server.logger.error('Error occured when caching', fileID);
+          req.app.server.logger.error(err);
+          return;
+        }
+        res.setHeader('Content-Type', mimeType);
+        res.end(buffer, 'binary');
+        req.app.server.logger.log(`Sent file ${fileID} to`, req.parsedIP);
+        return;
+      } else {
+        let file;
+        try {
+          file = await req.app.server.storage.getFile(fileData.node.file_id, fileData.node.node_id);
+          req.app.server.logger.debug('Retrieved', fileID, 'from node', fileData.node.node_id);
+        } catch (err) {
+          req.app.server.logger.error('Error occured when retreiving', fileID, 'from storage node', fileData.node.node_id);
+          req.app.server.logger.error(err);
+          res.render('pages/error.ejs', { message: 'Internal Server Error', error: 500, user: req.session.userData });
+          return;
+        }
+        try {
+          if (fileData.info.size < 4 * 1024 * 1024)
+            await process.f.redis.set('files.' + databaseID, JSON.stringify(file), 'EX', 60 * 60);
+          req.app.server.logger.debug('Added', fileID, 'to the cache');
+        } catch (err) {
+          req.app.server.logger.error('Error occured when caching', fileID);
+          req.app.server.logger.error(err);
+          return;
+        }
+        let mimeType;
+        try {
+          mimeType = (await fileType.fromBuffer(file)).mime;
+        } catch (err) {
+          req.app.server.logger.error('Error occured when caching', fileID);
+          req.app.server.logger.error(err);
+          return;
+        }
+        req.app.server.logger.log(`Sent file ${fileID} to`, req.parsedIP);
+        res.setHeader('Content-Type', mimeType);
+        res.end(file, 'binary');
+        return;
+      }
+    } else res.render('pages/error.ejs', { message: 'File Not Found', error: 404, user: req.session.userData });
+  } else res.render('pages/error.ejs', { message: 'File Not Found', error: 404, user: req.session.userData });
+  return;
 });
 
 module.exports = router;

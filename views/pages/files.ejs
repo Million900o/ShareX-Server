@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Files - ShareX-Server</title>
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <link rel="shortcut icon" href="/favicon.ico" />
+
+  <!-- meta tags -->
+  <meta content="Files - ShareX-Server" property="og:title">
+  <!-- meta tags needed -->
+</head>
+
+<body>
+  <%- include('../parts/navbar.ejs') %>
+
+  <div class="title">
+    <h2>Files</h2>
+  </div>
+
+  <div class="files">
+    <% if (files.length < 1 && parseInt(page) == 0) { %>
+      <div>
+        <a class="nextPage" style="display: flex;" title="Upload Files" href="/upload">You have no files uploaded. Maybe go and upload some.</a>
+      </div>
+    <% } %> 
+    <% let i = 0; %>
+    <% files.forEach(e => { %>
+    <% i++ %>
+    <div class="fileDiv">
+      <div class="fileName">
+        <a class="fileDataA"><%= e.info.original_name %></a><br>
+      </div>
+      <div class="fileData">
+        <a class="fileDataA">Uploaded At: <%= new Date(e.info.upload_date).toLocaleString() %></a><br>
+        <a class="fileDataA">Views: <%= e.stats.views %></a><br>
+        <a class="fileDataA">Link: </a>
+        <a class="Link" title="Go to <%= e.info.original_name %>" href="http<%= secure ? 's' : '' %>://<%= user.domain %>/files/<%= e.id.split(':').pop() %>">Click Here</a><br>
+        <a class="fileDataA">Delete Link: </a>
+        <a class="Link" title="Delete <%= e.originalName %>" href="http<%= secure ? 's' : '' %>://<%= user.domain %>/delete/<%= e.deletion_key.split(':').pop() %>">Click Here</a><br>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+  <div>
+    <% if ( parseInt(page) < 0 ) { %>
+    <a class="nextPage" style=" margin-bottom: 100px;" title="Back to page 0" href="/files/all">Take me back!</a>
+    <% }%>
+    <% if ( parseInt(page) > 0 ) { %>
+    <a class="nextPage" style=" margin-bottom: 100px;" title="Back to page <%= parseInt(page) - 1 %>"
+      href="/files/all?p=<%= parseInt(page) - 1 %>">Prevous Page</a>
+    <% }%>
+    <% if ( i > 99 ) { %>
+    <a class="nextPage" style="margin-bottom: 100px!important;" title="Go to page <%= parseInt(page) + 1 %>"
+      href="/files/all?p=<%= parseInt(page) + 1 %>">Next Page</a>
+    <% }%>
+  </div>
+
+</body>
+
+</html>
