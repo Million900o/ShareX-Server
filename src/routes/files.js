@@ -108,7 +108,7 @@ router.get('/files/:id', async (req, res) => {
           res.render('pages/md.ejs', { file: fileData, text: file.toString() });
         } else {
           res.setHeader('Content-Type', mimeType);
-          res.end(buffer, 'binary');
+          res.end(file, 'binary');
         }
         req.app.server.logger.log(`Sent file ${fileID} to`, req.parsedIP);
         return;
