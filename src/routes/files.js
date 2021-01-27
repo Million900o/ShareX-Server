@@ -63,6 +63,7 @@ router.get('/files/:id', async (req, res) => {
         } catch (err) {
           req.app.server.logger.error('Error occured when caching', fileID);
           req.app.server.logger.error(err);
+          res.render('pages/error.ejs', { message: 'Internal Server Error', error: 500, user: req.session.userData });
           return;
         }
         if (mimeType === 'text/plain') {
@@ -91,6 +92,7 @@ router.get('/files/:id', async (req, res) => {
         } catch (err) {
           req.app.server.logger.error('Error occured when caching', fileID);
           req.app.server.logger.error(err);
+          res.render('pages/error.ejs', { message: 'Internal Server Error', error: 500, user: req.session.userData });
           return;
         }
         let mimeType;
@@ -99,6 +101,7 @@ router.get('/files/:id', async (req, res) => {
         } catch (err) {
           req.app.server.logger.error('Error occured when caching', fileID);
           req.app.server.logger.error(err);
+          res.render('pages/error.ejs', { message: 'Internal Server Error', error: 500, user: req.session.userData });
           return;
         }
         if (mimeType === 'text/plain') {

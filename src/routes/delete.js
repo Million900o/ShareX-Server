@@ -6,24 +6,24 @@ const passwordAuthentication = require('../middleware/passwordAuthentication.js'
 router.get('/delete/:key', passwordAuthentication, async (req, res) => {
   const deletionKey = req.params.key;
   if (deletionKey) {
-    const databaseID =  req.session.userData.id + ':' + deletionKey;
+    const databaseID = req.session.userData.id + ':' + deletionKey;
     let fileData;
     try {
       fileData = await req.app.server.models.FileModel.findOne({ deletion_key: databaseID });
     } catch (err) {
       req.app.server.logger.error('Error occured when getting', deletionKey, 'DB document');
       req.app.server.logger.error(err);
-      res.render('pages/error.ejs', { message: 'Internal Server Error', error: 500, user: req.session.userData});
+      res.render('pages/error.ejs', { message: 'Internal Server Error', error: 500, user: req.session.userData });
       return;
     }
     if (fileData) {
       try {
         await req.app.server.models.FileModel.deleteOne(fileData);
         req.app.server.logger.debug('Deleted file', fileData.id, 'from the DB');
-      } catch(err) {
+      } catch (err) {
         req.app.server.logger.error('Error occured when deleting', fileData.id, 'from the DB');
         req.app.server.logger.error(err);
-        res.render('pages/error.ejs', { message: 'Internal Server Error', error: 500, user: req.session.userData});
+        res.render('pages/error.ejs', { message: 'Internal Server Error', error: 500, user: req.session.userData });
         return;
       }
       try {
