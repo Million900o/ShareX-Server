@@ -202,7 +202,6 @@ class ShareXServer {
   }
 
   startServer() {
-    this.deletetmpFiles();
     this.app = express();
     this.app.disable('x-powered-by');
     this.app.set('trust proxy', true);
@@ -260,6 +259,10 @@ class ShareXServer {
     this.app.listen(this.defaults.port, () => {
       this.logger.log('Started ShareX-Server on port', this.defaults.port);
     });
+
+    this.deletetmpTimeout = setTimeout(() => {
+      this.deletetmpFiles();
+    }, 3.6e6);
   }
 }
 
