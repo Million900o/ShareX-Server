@@ -15,7 +15,7 @@ router.use(slowDown({
   windowMs: 5 * 60 * 1000,
   delayAfter: 50,
   delayMs: 400,
-}))
+}));
 // router.use(fileUpload({
 //   limits: {
 //     fileSize: Infinity,
@@ -35,8 +35,8 @@ router.post('/upload', tokenAuthentication, async (req, res) => {
         savedFile = await req.app.server.storage.saveFile(fileBuffer);
       } catch (err) {
         req.app.server.logger.warn(err);
-        fs.unlinkSync(filePath);
         res.status(503).json({ succcess: false, message: 'Internal Server Error' });
+        fs.unlinkSync(filePath);
         return;
       }
       if (savedFile && savedFile.response.success) {
@@ -67,6 +67,7 @@ router.post('/upload', tokenAuthentication, async (req, res) => {
         } catch (err) {
           res.status(503).json({ succcess: false, message: 'Internal Server Error' });
           req.app.server.storage.delFile(savedFile.response.id, savedFile.node.id);
+          fs.unlinkSync(filePath);
           return;
         }
         try {

@@ -53,6 +53,8 @@ const deleteUserFilesRoute = require('./routes/api/admin/users/deleteFiles.js');
 
 const random = require('./utils/random.js');
 const bcrypt = require('bcrypt');
+const { resolve } = require('path');
+const { unlink, readdir, stat } = require('fs');
 
 const DefaultOptions = {
   authentication: {
@@ -133,6 +135,46 @@ class ShareXServer {
     this.logger.log('Connected to Redis at:', this.redisConfig.host + ':' + this.redisConfig.port);
   }
 
+  deletetmpFiles() {
+    const now = Date.now();
+    readdir(resolve('tmp/'), (err, files) => {
+      if (err) {
+        this.logger.error('Error occured when deleting tmp files.');
+        this.logger.error(err);
+        return;
+      } else {
+        files.forEach(file => {
+          try {
+            const filePath = resolve('tmp/', file);
+            stat(filePath, (er, stats) => {
+              if (er) {
+                this.logger.error('Error occured when getting stats of tmp file:', file);
+                this.logger.error(e);
+                return;
+              }
+              if (now > (new Date(stats.mtime).getTime() + 3.6e6)) {
+                unlink(filePath, (e) => {
+                  if (e) {
+                    this.logger.error('Error occured when deleting tmp file:', file);
+                    this.logger.error(e);
+                    return;
+                  } else {
+                    this.logger.log('Deleted tmp file:', file);
+                  }
+                });
+              }
+              return;
+            });
+          } catch (error) {
+            this.logger.error('Error occured when deleting tmp file:', file);
+            this.logger.error(errro);
+            return;
+          }
+        });
+      }
+    });
+  }
+
   async startMongo() {
     this.models = { FileModel, UserModel };
     this.logger.log('Connecting to MongoDB');
@@ -160,6 +202,7 @@ class ShareXServer {
   }
 
   startServer() {
+    this.deletetmpFiles();
     this.app = express();
     this.app.disable('x-powered-by');
     this.app.set('trust proxy', true);
