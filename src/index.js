@@ -56,46 +56,7 @@ const bcrypt = require('bcrypt');
 const { resolve } = require('path');
 const { unlink, readdir, stat } = require('fs');
 
-const DefaultOptions = {
-  authentication: {
-    emails: {
-      required: false,
-    },
-    passwords: {
-      saltRounds: 1,
-      tries: 5,
-    },
-    tokens: {
-      length: 15,
-      tries: 5,
-    },
-  },
-  storageSize: {
-    owner: 'Infinity',
-    admin: 'Infinity',
-    staff: '1e+7',
-    friend: '5e+6',
-    'tier-3': '2e+7',
-    'tier-2': '1e+7',
-    'tier-1': '5e+6',
-    user: '2e+6',
-    bad: '1e+6'
-  },
-  mongodb: {
-    connectURI: 'mongodb://localhost/sharex-rewrite-test',
-    connectOptions: {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    },
-  },
-  useRedis: false,
-  defaults: {
-    port: 80,
-    domain: 'localhost',
-    secure: false,
-    userType: 'user'
-  },
-};
+const DefaultOptions = require('./utils/defaultOptions.json');
 
 class ShareXServer {
   constructor(options = DefaultOptions) {
@@ -160,6 +121,7 @@ class ShareXServer {
                     return;
                   } else {
                     this.logger.log('Deleted tmp file:', file);
+                    return;
                   }
                 });
               }
@@ -167,7 +129,7 @@ class ShareXServer {
             });
           } catch (error) {
             this.logger.error('Error occured when deleting tmp file:', file);
-            this.logger.error(errro);
+            this.logger.error(error);
             return;
           }
         });
